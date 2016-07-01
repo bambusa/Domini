@@ -80,7 +80,7 @@
                     //Debug.Log("Found color #" + hexCodes[x][z] + " for pixel " + (z * mapWidth + x) + " at coordinates " + x + "/" + z);
                 }
             }
-            map =  new MapModel(mapWidth, mapHeight, hexCodes, textureVersion);
+            map = new MapModel(mapWidth, mapHeight, hexCodes, textureVersion);
         }
         else {
             Debug.Log("No map file provided, generating random map");
