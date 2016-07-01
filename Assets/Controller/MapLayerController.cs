@@ -1,10 +1,13 @@
-﻿using UnityEngine;[RequireComponent(typeof(MeshFilter))][RequireComponent(typeof(MeshRenderer))][RequireComponent(typeof(MeshCollider))]public class MapController : MonoBehaviour {    public Texture2D mapFile;    public Texture2D terrainTexture;    public int textureResolution;    public int textureVersion;    MapModel mapModel;
+﻿using UnityEngine;/// <summary>
+/// Generating the Map Model and render it
+/// </summary>[RequireComponent(typeof(MeshFilter))][RequireComponent(typeof(MeshRenderer))][RequireComponent(typeof(MeshCollider))]public class MapLayerController : MonoBehaviour {    public Texture2D mapFile;    public Texture2D terrainTexture;    public int textureResolution;    public int textureVersion;    MapModel mapModel;
     int sizeX;    int sizeZ;
 
-    // Use this for initialization
-    void Start() {        PrepareMapData();        BuildMesh();    }    public void BuildMesh() {
+    void Start() {        PrepareMapData();        BuildMesh();    }    /// <summary>
+    /// Generate all vertices, triangles, normals and uvs for the map model
+    /// </summary>    public void BuildMesh() {
         // Generate mesh data
-        int verticesXNumber = sizeX + 1;        int verticesZNumber = sizeZ + 1;        int verticeNumber = verticesXNumber * verticesZNumber;        int triangleNumber = sizeX * sizeZ * 2;        int normalNumber = verticeNumber;        int uvNumber = verticeNumber;        Vector3[] vertices = new Vector3[verticeNumber];        int[] triangles = new int[triangleNumber * 3];        Vector3[] normals = new Vector3[normalNumber];        Vector2[] uv = new Vector2[uvNumber];
+        int verticesXNumber = sizeX + 1;        int verticesZNumber = sizeZ + 1;        int verticeNumber = verticesXNumber * verticesZNumber;        int triangleNumber = sizeX * sizeZ * 2;        int normalNumber = verticeNumber;        int uvNumber = verticeNumber;        Vector3[] vertices = new Vector3[verticeNumber]; // Basic vertices        int[] triangles = new int[triangleNumber * 3]; // Triangles consisting each of 3 vertices        Vector3[] normals = new Vector3[normalNumber]; // Lighting direction of vertex        Vector2[] uv = new Vector2[uvNumber]; // Texture position of vertex
 
         int x, z;        for (z = 0; z < verticesZNumber; z++) {            for (x = 0; x < verticesXNumber; x++) {                vertices[z * verticesXNumber + x] = new Vector3(x, 0, z);                normals[z * verticesXNumber + x] = Vector3.up;
                 uv[z * verticesXNumber + x] = new Vector2((float)x / sizeX, (float)z / sizeZ);
@@ -32,7 +35,9 @@
         Mesh mesh = new Mesh();        mesh.vertices = vertices;        mesh.triangles = triangles;        mesh.normals = normals;        mesh.uv = uv;
 
         // Assign mesh to game
-        MeshFilter meshFilter = GetComponent<MeshFilter>();        MeshRenderer meshRenderer = GetComponent<MeshRenderer>();        MeshCollider meshCollider = GetComponent<MeshCollider>();        meshFilter.mesh = mesh;        meshCollider.sharedMesh = mesh;        BuildTextures();    }    void BuildTextures() {
+        MeshFilter meshFilter = GetComponent<MeshFilter>();        MeshRenderer meshRenderer = GetComponent<MeshRenderer>();        MeshCollider meshCollider = GetComponent<MeshCollider>();        meshFilter.mesh = mesh;        meshCollider.sharedMesh = mesh;        BuildTextures();    }    /// <summary>
+    /// Create texture for the map material on top of the mesh
+    /// </summary>    void BuildTextures() {
         int textureWidth = sizeX * textureResolution;
         int textureHeight = sizeZ * textureResolution;
         Texture2D texture = new Texture2D(textureWidth, textureHeight);
@@ -41,7 +46,7 @@
         for (int z = 0; z < sizeZ; z++) {
             for (int x = 0; x < sizeX; x++) {
                 int textureIndex = mapModel.getTile(x, z).getTextureIndex();
-                Debug.Log("textureIndex " + textureIndex + " for tile " + x + "/" + z);
+                //Debug.Log("textureIndex " + textureIndex + " for tile " + x + "/" + z);
                 texture.SetPixels(x * textureResolution, z * textureResolution, textureResolution, textureResolution, textures[textureIndex]);
             }
         }
@@ -61,13 +66,13 @@
                 tiles[y * tilesPerRow + x] = terrainTexture.GetPixels(x * textureResolution, y * textureResolution, textureResolution, textureResolution);
             }
         }
-        Debug.Log("Prepared " + tiles.Length + " textures (" + tilesPerRow + " * " + rowNumber + ")");
+        //Debug.Log("Prepared " + tiles.Length + " textures (" + tilesPerRow + " * " + rowNumber + ")");
         return tiles;
     }    void PrepareMapData() {
         MapModel map = null;
 
         if (mapFile != null) {
-            Debug.Log("Found map file");
+            //Debug.Log("Found map file");
             int mapWidth = mapFile.width;
             int mapHeight = mapFile.height;
             Color[] pixels = mapFile.GetPixels(0, 0, mapWidth, mapHeight);
@@ -84,7 +89,7 @@
         }
         else {
             Debug.Log("No map file provided, generating random map");
-            if (sizeX != 0 && sizeZ != null) {
+            if (sizeX != 0 && sizeZ != 0) {
                 map = new MapModel(sizeX, sizeZ, textureVersion);
             }
             else {

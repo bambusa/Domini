@@ -12,6 +12,10 @@ public class TileModel {
         this.textureVersion = textureVersion;
     }
 
+    /// <summary>
+    /// Get the texture position of the terrain type for the provided texture version
+    /// </summary>
+    /// <returns>The texture position in the texture image file</returns>
     public int getTextureIndex() {
         switch(textureVersion) {
             default:

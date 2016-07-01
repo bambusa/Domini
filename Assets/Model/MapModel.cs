@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEngine;
 
 /// <summary>
 /// Model of the map
@@ -55,7 +54,7 @@ public class MapModel {
         for (int x = 0; x < width; x++) {
             mapTiles[x] = new TileModel[height];
             for (int z = 0; z < height; z++) {
-                Debug.Log("Found hex code #" + hexCodes[x][z]);
+                // Debug.Log("Found hex code #" + hexCodes[x][z]);
                 mapTiles[x][z] = new TileModel(terrainTypesModel.getTerrainType(hexCodes[x][z]), textureVersion);
             }
         }
