@@ -17,7 +17,12 @@ public class PlaceBuildingController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        if (mapLayer != null && !buildingModel.isPlaced()) {
+        if (Input.GetMouseButtonDown(0) && posX >= 0 && posZ >= 0) {
+            Debug.Log("Place at " + posX + "/" + posZ);
+            buildingModel.placeBuilding(posX, posZ);
+            Destroy(this);
+        }
+        else if (mapLayer != null && !buildingModel.isPlaced()) {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
             if (mapCollider.Raycast(ray, out hit, 100.0F)) {
@@ -26,15 +31,8 @@ public class PlaceBuildingController : MonoBehaviour {
                 if (posX != x || posZ != z) {
                     posX = x;
                     posZ = z;
-                    if (Input.GetMouseButtonDown(0)) {
-                        Debug.Log("Place at " + posX + "/" + posZ);
-                        buildingModel.placeBuilding(posX, posZ);
-                        Destroy(this);
-                    }
-                    else {
-                        Debug.Log("Map coordinate " + posX + "/" + posZ);
-                        transform.position = new Vector3(posX + 0.5f, 0.5f, posZ + 0.5f);
-                    }
+                    Debug.Log("Map coordinate " + posX + "/" + posZ);
+                    transform.position = new Vector3(posX + 0.5f, 0.5f, posZ + 0.5f);
                 }
             }
                 

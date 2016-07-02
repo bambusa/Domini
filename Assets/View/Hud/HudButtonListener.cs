@@ -12,7 +12,14 @@ public class HudButtonListener : MonoBehaviour {
     Renderer buildingMenuPanelRenderer;
 
     void onStart() {
+        Debug.Log("Hud");
+        if (buildingLayer == null) {
+            Debug.LogError("BuildingLayer not set");
+        }
         buildingController = buildingLayer.GetComponent<BuildingLayerController>();
+        if (buildingController == null) {
+            Debug.LogError("BuildingController not found");
+        }
     }
 
     public void onClickBuildButton() {
@@ -27,6 +34,10 @@ public class HudButtonListener : MonoBehaviour {
         if (state == STATE.BUILDING_MENU) {
             state = STATE.WORLD;
             buildingMenuPanel.SetActive(false);
+            if (buildingController == null) {
+                buildingController = buildingLayer.GetComponent<BuildingLayerController>();
+            }   
+            buildingController.CreatePlaceholderModel();
         }        
     }
 }
