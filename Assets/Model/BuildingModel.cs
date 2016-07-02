@@ -2,13 +2,13 @@
 
 public class BuildingModel {
 
-    public delegate void Callback(BuildingModel b);
-    protected Callback placedCallback;
+    // Callbacks
+    Action<BuildingModel> cbPositionChanged;
 
-    public string name;
-    public string color;
-    public int posX;
-    public int posZ;
+    string name;
+    string color;
+    int posX;
+    int posZ;
 
     public BuildingModel(string name, string color) {
         this.name = name;
@@ -24,18 +24,29 @@ public class BuildingModel {
         this.posZ = posZ;
     }
 
-    public void SetPlacedCallback(Callback callback) {
-        placedCallback = callback;
+    public void CbRegisterPositionChanged(Action<BuildingModel> callback) {
+        cbPositionChanged += callback;
     }
 
-    public void placeBuilding(int posX, int posZ) {
-        this.posX = posX;
-        this.posZ = posZ;
-        placedCallback(this);
+    public void SetName(string name) {
+        this.name = name;
+    }
+    public string GetName() {
+        return name;
     }
 
-    public Boolean isPlaced() {
-        return (posX > -1 && posZ > -1);
+    public void SetPosition(int posX, int posZ) {
+        if (this.posX != posX || this.posZ != posZ) {
+            this.posX = posX;
+            this.posZ = posZ;
+            if (cbPositionChanged != null)
+                cbPositionChanged(this);
+        }
     }
-
+    public int GetPositionX() {
+        return posX;
+    }
+    public int GetPositionZ() {
+        return posZ;
+    }
 }

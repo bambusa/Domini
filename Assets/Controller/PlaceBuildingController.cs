@@ -7,8 +7,6 @@ public class PlaceBuildingController : MonoBehaviour {
     public GameObject mapLayer;
 
     Collider mapCollider;
-    int posX = -100;
-    int posZ = -100;
 
     // Use this for initialization
     void Start () {
@@ -17,23 +15,17 @@ public class PlaceBuildingController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        if (Input.GetMouseButtonDown(0) && posX >= 0 && posZ >= 0) {
-            Debug.Log("Place at " + posX + "/" + posZ);
-            buildingModel.placeBuilding(posX, posZ);
+        if (Input.GetMouseButtonDown(0)) {
+            Debug.Log("Place Building here");
             Destroy(this);
         }
-        else if (mapLayer != null && !buildingModel.isPlaced()) {
+        else if (mapLayer != null) {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
             if (mapCollider.Raycast(ray, out hit, 100.0F)) {
                 int x = (int)Mathf.Floor(hit.point.x);
                 int z = (int)Mathf.Floor(hit.point.z);
-                if (posX != x || posZ != z) {
-                    posX = x;
-                    posZ = z;
-                    Debug.Log("Map coordinate " + posX + "/" + posZ);
-                    transform.position = new Vector3(posX + 0.5f, 0.5f, posZ + 0.5f);
-                }
+                buildingModel.SetPosition(x, z);
             }
                 
         }

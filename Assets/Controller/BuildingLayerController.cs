@@ -5,9 +5,11 @@ public class BuildingLayerController : MonoBehaviour {
 
     public GameObject mapLayer;
 
+    ArrayList buildingModels;
+
 	// Use this for initialization
 	void Start () {
-        
+        buildingModels = new ArrayList();
 	}
 	
 	// Update is called once per frame
@@ -22,15 +24,13 @@ public class BuildingLayerController : MonoBehaviour {
     void RenderBuilding(BuildingModel buildingModel) {
         GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
         cube.transform.parent = this.transform;
-        cube.name = buildingModel.name;
+        cube.name = buildingModel.GetName();
         cube.GetComponent<Renderer>().material.color = Color.red;
         cube.transform.position = Input.mousePosition;
         cube.transform.localScale = new Vector3(1, 1, 1);
         PlaceBuildingController p = cube.AddComponent<PlaceBuildingController>();
         p.mapLayer = mapLayer;
         p.buildingModel = buildingModel;
-        BuildingObjectController b = cube.AddComponent<BuildingObjectController>();
-        b.buildingModel = buildingModel;
-        b.GetName();
+        cube.AddComponent<BuildingObjectController>().buildingModel = buildingModel;
     }
 }
