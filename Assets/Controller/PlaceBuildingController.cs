@@ -3,32 +3,46 @@ using System.Collections;
 
 public class PlaceBuildingController : MonoBehaviour {
 
-    public BuildingModel buildingModel;
-    public GameObject mapLayer;
-
-    Collider mapCollider;
+    private BuildingModel buildingModel;
+    private Collider mapCollider;
+    private bool gameObjectActive;
 
     // Use this for initialization
     void Start () {
-        mapCollider = mapLayer.GetComponent<Collider>();
+        
     }
-	
-	// Update is called once per frame
-	void Update () {
-        if (Input.GetMouseButtonDown(0)) {
-            Debug.Log("Place Building here");
-            Destroy(this);
-        }
-        else if (mapLayer != null) {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-            if (mapCollider.Raycast(ray, out hit, 100.0F)) {
-                int x = (int)Mathf.Floor(hit.point.x);
-                int z = (int)Mathf.Floor(hit.point.z);
-                buildingModel.SetPosition(x, z);
+
+    /// <summary>
+    /// Update is called once per frame
+    /// Lets the building position follow the mouse position
+    /// </summary>
+    void Update () {
+        if (mapCollider != null) {
+            if (gameObjectActive && Input.GetMouseButtonDown(0)) { // Place the building if GameObject is active = positioned and left mouse button is clicked
+                Debug.Log("Place Building here");
+                buildingModel.NotifyPlaced();
+                Destroy(this);
             }
-                
+            else { // Update the building position to the mouse position on the map
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                RaycastHit hit;
+                if (mapCollider.Raycast(ray, out hit, 100.0F)) {
+                    int x = (int)Mathf.Floor(hit.point.x);
+                    int z = (int)Mathf.Floor(hit.point.z);
+                    buildingModel.SetPosition(x, z);
+
+                    if (!gameObjectActive) {
+                        gameObjectActive = gameObject.activeSelf;
+                        gameObject.SetActive(true);
+                        gameObjectActive = gameObject.activeSelf;
+                    }
+                }
+            }
         }
-       
+    }
+
+    public void SetReferences(BuildingModel buildingModel, GameObject mapLayer) {
+        this.buildingModel = buildingModel;
+        mapCollider = mapLayer.GetComponent<Collider>();
     }
 }

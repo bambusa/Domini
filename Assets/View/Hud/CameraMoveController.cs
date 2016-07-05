@@ -1,8 +1,11 @@
 ﻿using System;
 using UnityEngine;public class CameraMoveController : MonoBehaviour {
 
-    public float dragSpeed = 7;
-    public float scrollSpeed = 0.5f;
+    public float dragSpeed = 5;
+    public float keySpeed = 0.5f;
+    public float scrollSpeed = 1;
+    public float minZoom = 5;
+    public float maxZoom = 100;
 
     Vector3 dragOrigin;
     Boolean dragging;
@@ -27,8 +30,15 @@ using UnityEngine;public class CameraMoveController : MonoBehaviour {
         }
         else {
             // WASD
-            Vector3 move = new Vector3(Input.GetAxis("Horizontal") * scrollSpeed * -1, 0, Input.GetAxis("Vertical") * scrollSpeed * -1);
-            Camera.main.transform.Translate(new Vector3(Input.GetAxis("Horizontal") * scrollSpeed, Input.GetAxis("Vertical") * scrollSpeed, 0));
+            Vector3 move = new Vector3(Input.GetAxis("Horizontal") * keySpeed * -1, 0, Input.GetAxis("Vertical") * keySpeed * -1);
+            Camera.main.transform.Translate(new Vector3(Input.GetAxis("Horizontal") * keySpeed, Input.GetAxis("Vertical") * keySpeed, 0));
+        }
+        Vector3 zoom = new Vector3(0, Input.GetAxis("Mouse ScrollWheel") * scrollSpeed * -1);
+        if ((Camera.main.transform.position.y > minZoom && Camera.main.transform.position.y < maxZoom) ||
+            (Camera.main.transform.position.y <= minZoom && zoom.y > 0) ||
+            (Camera.main.transform.position.y >= maxZoom && zoom.y < 0)) {
+            // Zoom
+            Camera.main.transform.Translate(new Vector3(0, Input.GetAxis("Mouse ScrollWheel") * Camera.main.transform.position.y * scrollSpeed * -1), 0);
         }
     }
 }

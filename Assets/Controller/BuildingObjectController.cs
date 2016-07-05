@@ -1,25 +1,35 @@
 ﻿using UnityEngine;
 
+/// <summary>
+/// Controller for an individual GameData building object,
+/// manage interaction and rendering
+/// </summary>
 [RequireComponent(typeof(MeshFilter))][RequireComponent(typeof(MeshRenderer))][RequireComponent(typeof(MeshCollider))]
 public class BuildingObjectController : MonoBehaviour {
 
-    public BuildingModel buildingModel;
+    private BuildingModel buildingModel;
 
-	// Use this for initialization
-	void Start () {
-        Debug.Log("BuildingObjectController started");
-        if (buildingModel != null) {
-            buildingModel.CbRegisterPositionChanged(OnBuildingPositionChanged);
-        }
-	}
+	//// Use this for initialization
+	//void Start () {
+
+	//}
 	
-	// Update is called once per frame
-	void Update () {
+	//// Update is called once per frame
+	//void Update () {
         
+ //   }
+ 
+    /// <summary>
+    /// Callback for changed position data of a building,
+    /// render new location
+    /// </summary>
+    /// <param name="buildingModel">BuildingModel which position changed</param>
+    private void OnBuildingPositionChanged(BuildingModel buildingModel) {
+        Debug.Log("Building was moved");
+        gameObject.transform.position = new Vector3(buildingModel.GetPositionX() + 0.5f, 0.5f, buildingModel.GetPositionZ() + 0.5f);
     }
 
-    void OnBuildingPositionChanged(BuildingModel b) {
-        Debug.Log("Building was moved");
-        gameObject.transform.position = new Vector3(b.GetPositionX() + 0.5f, 0.5f, b.GetPositionZ() + 0.5f);
+    public void SetReferences(BuildingModel buildingModel) {
+        this.buildingModel = buildingModel;
     }
 }
