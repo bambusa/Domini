@@ -30,7 +30,7 @@ public class HudButtonListener : MonoBehaviour {
         }
     }
 
-    public void onClickBuildingButton() {
+    public void onClickBuildingButton(string typeName) {
         if (state == STATE.BUILDING_MENU) {
             state = STATE.WORLD;
             buildingMenuPanel.SetActive(false);

@@ -30,8 +30,8 @@ using UnityEngine;public class CameraMoveController : MonoBehaviour {
         }
         else {
             // WASD
-            Vector3 move = new Vector3(Input.GetAxis("Horizontal") * keySpeed * -1, 0, Input.GetAxis("Vertical") * keySpeed * -1);
-            Camera.main.transform.Translate(new Vector3(Input.GetAxis("Horizontal") * keySpeed, Input.GetAxis("Vertical") * keySpeed, 0));
+            Vector3 move = new Vector3(Input.GetAxis("Horizontal") * keySpeed, Input.GetAxis("Vertical") * keySpeed, 0);
+            Camera.main.transform.Translate(move);
         }
         Vector3 zoom = new Vector3(0, Input.GetAxis("Mouse ScrollWheel") * scrollSpeed * -1);
         if ((Camera.main.transform.position.y > minZoom && Camera.main.transform.position.y < maxZoom) ||

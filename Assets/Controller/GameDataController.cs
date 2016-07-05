@@ -1,15 +1,24 @@
 ﻿using UnityEngine;
-using System.Collections;
+using UnityEngine.SceneManagement;
 
 /// <summary>
-/// 
+/// Load all game data from database and prepare the model classes
 /// </summary>
 public class GameDataController : MonoBehaviour {
 
+    private BuildingTypesController buildingTypesController;
     private SqliteController sqliteController;
 
 	// Use this for initialization
 	void Start () {
-        sqliteController = new SqliteController();
-	}
+        DontDestroyOnLoad(gameObject);
+        sqliteController = new SqliteController(Application.dataPath);
+        buildingTypesController = sqliteController.GetBuildingTypesController();
+        
+        SceneManager.LoadScene("MainScene");
+    }
+
+    public BuildingTypesController GetBuildingTypesController() {
+        return buildingTypesController;
+    }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections;
 
 public class BuildingTypesController {
 
@@ -8,12 +9,16 @@ public class BuildingTypesController {
         buildingTypes = new Dictionary<string, BuildingTypesModel>();
     }
 
-    public bool BuildingType(BuildingTypesModel buildingType) {
+    public bool AddBuildingType(BuildingTypesModel buildingType) {
         if (!buildingTypes.ContainsKey(buildingType.GetName())) {
             buildingTypes.Add(buildingType.GetName(), buildingType);
             return true;
         }
         return false;
+    }
+
+    public Dictionary<string, BuildingTypesModel> GetBuildingTypesModels() {
+        return buildingTypes;
     }
 
     public BuildingTypesModel GetBuildingTypesModel(string name) {
