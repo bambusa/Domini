@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine; // TODO: Delete
 
 /// <summary>
 /// Data model of a building
@@ -6,43 +7,36 @@
 public class BuildingModel {
 
     // Callbacks
-    Action<BuildingModel> cbPositionChanged;
-    Action<BuildingModel> cbResourcesChanged;
+    private Action<BuildingModel> cbPositionChanged;
+    private Action<BuildingModel> cbResourcesChanged;
 
-    string name;
-    string color;
-    int posX;
-    int posZ;
-    float production;
+    private BuildingTypesModel buildingTypesModel;
+    private int posX;
+    private int posZ;
 
-    public BuildingModel(string name, string color) {
-        this.name = name;
-        this.color = color;
-        this.posX = -100;
-        this.posZ = -100;
-        this.production = 10f;
+    public BuildingModel(BuildingTypesModel buildingTypesModel) {
+        this.buildingTypesModel = buildingTypesModel;
     }
 
-    public BuildingModel(string name, string color, int posX, int posZ, float production) {
-        this.name = name;
-        this.color = color;
-        this.posX = posX;
-        this.posZ = posZ;
-        this.production = production;
-    }
+    //public BuildingModel(string name, string color, int posX, int posZ, float production) {
+    //    this.name = name;
+    //    this.color = color;
+    //    this.posX = posX;
+    //    this.posZ = posZ;
+    //    this.production = production;
+    //}
 
-    public void SetName(string name) {
-        this.name = name;
-    }
     public string GetName() {
-        return name;
+        return buildingTypesModel.GetName();
     }
 
     public void SetPosition(int posX, int posZ) {
         if (this.posX != posX || this.posZ != posZ) {
+            //Debug.Log("Changed Position: " + posX + "/" + posZ);
             this.posX = posX;
             this.posZ = posZ;
             if (cbPositionChanged != null)
+                //Debug.Log("cbPositionChanged");
                 cbPositionChanged(this);
         }
     }
@@ -53,15 +47,15 @@ public class BuildingModel {
         return posZ;
     }
 
-    public void SetProduction(float production) {
-        if (this.production != production) {
-            this.production = production;
-            cbResourcesChanged(this);
-        }
-    }
-    public float GetProduction() {
-        return production;
-    }
+    //public void SetProduction(float production) {
+    //    if (this.production != production) {
+    //        this.production = production;
+    //        cbResourcesChanged(this);
+    //    }
+    //}
+    //public float GetProduction() {
+    //    return production;
+    //}
 
     public void NotifyPlaced() {
         cbResourcesChanged(this);
@@ -72,6 +66,7 @@ public class BuildingModel {
     /// </summary>
     /// <param name="callback">Callback function</param>
     public void CbRegisterPositionChanged(Action<BuildingModel> callback) {
+        //Debug.Log("CbRegisterPositionChanged");
         cbPositionChanged += callback;
     }
 

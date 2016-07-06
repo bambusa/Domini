@@ -9,7 +9,7 @@ public class PlaceBuildingController : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        
+        Debug.Log("Start PlaceBuildingController");
     }
 
     /// <summary>
@@ -18,7 +18,7 @@ public class PlaceBuildingController : MonoBehaviour {
     /// </summary>
     void Update () {
         if (mapCollider != null) {
-            if (gameObjectActive && Input.GetMouseButtonDown(0)) { // Place the building if GameObject is active = positioned and left mouse button is clicked
+            if (Input.GetMouseButtonDown(0)) { // Place the building if GameObject is active = positioned and left mouse button is clicked
                 Debug.Log("Place Building here");
                 buildingModel.NotifyPlaced();
                 Destroy(this);
@@ -29,13 +29,15 @@ public class PlaceBuildingController : MonoBehaviour {
                 if (mapCollider.Raycast(ray, out hit, 100.0F)) {
                     int x = (int)Mathf.Floor(hit.point.x);
                     int z = (int)Mathf.Floor(hit.point.z);
+                    //Debug.Log("Move to " + x + "/" + z);
                     buildingModel.SetPosition(x, z);
 
-                    if (!gameObjectActive) {
-                        gameObjectActive = gameObject.activeSelf;
-                        gameObject.SetActive(true);
-                        gameObjectActive = gameObject.activeSelf;
-                    }
+                    //if (!gameObjectActive) {
+                    //    Debug.Log("Set Building active");
+                    //    gameObjectActive = gameObject.activeSelf;
+                    //    gameObject.SetActive(true);
+                    //    gameObjectActive = gameObject.activeSelf;
+                    //}
                 }
             }
         }

@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 /// </summary>
 public class GameDataController : MonoBehaviour {
 
-    private BuildingTypesController buildingTypesController;
+    private static BuildingTypesController buildingTypesController;
     private SqliteController sqliteController;
 
 	// Use this for initialization
@@ -18,7 +18,7 @@ public class GameDataController : MonoBehaviour {
         SceneManager.LoadScene("MainScene");
     }
 
-    public BuildingTypesController GetBuildingTypesController() {
+    public static BuildingTypesController GetBuildingTypesController() {
         return buildingTypesController;
     }
 }

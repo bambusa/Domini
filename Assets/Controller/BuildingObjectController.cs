@@ -31,5 +31,6 @@ public class BuildingObjectController : MonoBehaviour {
 
     public void SetReferences(BuildingModel buildingModel) {
         this.buildingModel = buildingModel;
+        this.buildingModel.CbRegisterPositionChanged(OnBuildingPositionChanged);
     }
 }

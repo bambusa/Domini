@@ -29,15 +29,4 @@ public class HudButtonListener : MonoBehaviour {
             buildingMenuPanel.SetActive(true);
         }
     }
-
-    public void onClickBuildingButton(string typeName) {
-        if (state == STATE.BUILDING_MENU) {
-            state = STATE.WORLD;
-            buildingMenuPanel.SetActive(false);
-            if (buildingController == null) {
-                buildingController = buildingLayer.GetComponent<BuildingLayerController>();
-            }   
-            buildingController.CreatePlaceholderModel();
-        }        
-    }
 }

@@ -13,10 +13,13 @@ using UnityEngine.Events;
 public class BuildingLayerController : MonoBehaviour {
 
     public GameObject mapLayer;
+    public GameObject prefabButton;
+    public GameObject buildingMenuPanel;
 
     private UnityAction<string> onClick;
-    private GameDataController gameDataController;
+    private Dictionary<string, BuildingTypesModel> buildingTypes;
     private ArrayList buildingModels;
+    private long resourcesLastCalculated;
     private Dictionary<int, float> productionBalance;
     private Dictionary<int, float> resourceStorage;
 
@@ -24,19 +27,28 @@ public class BuildingLayerController : MonoBehaviour {
     void Start () {
         buildingModels = new ArrayList();
         productionBalance = new Dictionary<int, float>();
-        GameObject gameData = GameObject.Find("Game Data");
-        if (gameData != null) {
-            gameDataController = gameData.GetComponent<GameDataController>();
-            if (gameDataController != null) {
-                GenerateBuildingMenu(gameDataController.GetBuildingTypesController());
-            }
-            else {
-                Debug.LogError("GameDataController not found");
-            }
+        BuildingTypesController buildingTypesController = GameDataController.GetBuildingTypesController();
+        if (buildingTypesController == null) {
+            Debug.LogError("BuildingTypesController not found");
         }
         else {
-            Debug.LogError("GameData object not found");
+            buildingTypes = buildingTypesController.GetBuildingTypesModels();
+            GenerateBuildingMenu();
         }
+
+        //GameObject gameData = GameObject.Find("Game Data");
+        //if (gameData != null) {
+        //    gameDataController = gameData.GetComponent<GameDataController>();
+        //    if (gameDataController != null) {
+        //        GenerateBuildingMenu(gameDataController.GetBuildingTypesController());
+        //    }
+        //    else {
+        //        Debug.LogError("GameDataController not found");
+        //    }
+        //}
+        //else {
+        //    Debug.LogError("GameData object not found");
+        //}
     }
 
  
@@ -49,10 +61,11 @@ public class BuildingLayerController : MonoBehaviour {
     /// Generate building menu from database
     /// </summary>
     /// <param name="buildingTypesController"></param>
-    private void GenerateBuildingMenu(BuildingTypesController buildingTypesController) {
+    private void GenerateBuildingMenu() {
+        Debug.Log("GenerateBuildingMenu " + buildingTypes.Values.Count);
         GameObject hud = GameObject.Find("Hud");
         if (hud != null) {
-            Component[] components = hud.GetComponentsInChildren(typeof(HorizontalLayoutGroup), true);
+            Component[] components = hud.GetComponentsInChildren(typeof(GridLayoutGroup), true);
             GameObject buildingMenuParent = null;
             foreach(Component c in components) {
                 if (c.gameObject.name.Equals("Building Menu Content")) {
@@ -64,27 +77,17 @@ public class BuildingLayerController : MonoBehaviour {
                 int buttonWidth = 100;
                 int buttonHeight = 100;
 
-                foreach (BuildingTypesModel b in buildingTypesController.GetBuildingTypesModels().Values) {
-                    GameObject button = new GameObject();
+                foreach (BuildingTypesModel b in buildingTypes.Values) {
+                    BuildingTypesModel tempB = b;
+                    GameObject button = (GameObject) Instantiate(prefabButton);
+
                     button.name = b.GetName() + " Button";
                     button.transform.SetParent(buildingMenuParent.transform);
-                    button.AddComponent<RectTransform>().sizeDelta = new Vector2(buttonWidth, buttonHeight);
-                    button.AddComponent<Image>();
-                    button.AddComponent<Button>().onClick.AddListener(() => CreateBuilding(b.GetName()));
-                    LayoutElement l = button.AddComponent<LayoutElement>();
-                    l.preferredWidth = buttonWidth;
-                    l.preferredHeight = buttonHeight;
+                    button.GetComponent<RectTransform>().sizeDelta = new Vector2(buttonWidth, buttonHeight);
+                    button.GetComponent<Button>().onClick.AddListener(() => CreateBuilding(tempB));
 
-                    GameObject text = new GameObject();
-                    text.name = b.GetName() + " Text";
-                    text.transform.SetParent(button.transform);
-                    text.AddComponent<RectTransform>().sizeDelta = new Vector2(buttonWidth, buttonHeight);
-                    text.transform.position = button.transform.position;
-                    Text t = text.AddComponent<Text>();
+                    Text t = button.GetComponentInChildren<Text>();
                     t.text = b.GetName();
-                    t.font = Resources.GetBuiltinResource(typeof(Font), "Arial.ttf") as Font;
-                    t.color = Color.black;
-                    t.alignment = TextAnchor.MiddleCenter;
                 }
             }
             else {
@@ -101,22 +104,16 @@ public class BuildingLayerController : MonoBehaviour {
     /// </summary>
     void updateResourceProduction() {
         foreach (BuildingModel building in buildingModels) {
-            productionBalance.Add(0, building.GetProduction());
+            //productionBalance.Add(0, building.GetProduction());
         }
-        Debug.Log("Updated Production to: " + productionBalance[0]);
+        //Debug.Log("Updated Production to: " + productionBalance[0]);
     }
 
-    /// <summary>
-    /// Create new placeholder BuildingModel for testing
-    /// </summary>
-    public void CreatePlaceholderModel() {
-        BuildingModel newBuilding = new BuildingModel("Placeholder", "#00FF33");
+    public void CreateBuilding(BuildingTypesModel buildingTypesModel) {
+        Debug.Log("Create building " + buildingTypesModel.GetName());
+        BuildingModel newBuilding = new BuildingModel(buildingTypesModel);
         newBuilding.CbRegisterResourcesChanged(OnBuildingResourcesChanged);
         RenderBuilding(newBuilding);
-    }
-
-    public void CreateBuilding(string typeName) {
-        Debug.Log("Create building " + typeName);
     }
 
     /// <summary>
@@ -127,14 +124,17 @@ public class BuildingLayerController : MonoBehaviour {
     /// <param name="buildingModel">BuildingModel of the building</param>
     void RenderBuilding(BuildingModel buildingModel) {
         GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube); // TODO: Placeholder 
-        cube.SetActive(false);
+        //cube.SetActive(false);
         cube.transform.parent = this.transform;
         cube.name = buildingModel.GetName();
         cube.GetComponent<Renderer>().material.color = Color.red;
         cube.transform.localScale = new Vector3(1, 1, 1);
         cube.AddComponent<PlaceBuildingController>().SetReferences(buildingModel, mapLayer);
         cube.AddComponent<BuildingObjectController>().SetReferences(buildingModel);
+
+        buildingModel.CbRegisterResourcesChanged(OnBuildingResourcesChanged);
         buildingModels.Add(buildingModel);
+        buildingMenuPanel.SetActive(false);
     }
 
     /// <summary>
