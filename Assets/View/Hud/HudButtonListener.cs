@@ -6,8 +6,6 @@ public class HudButtonListener : MonoBehaviour {
     public GameObject buildingLayer;
     public GameObject buildingMenuPanel;
 
-    enum STATE { WORLD, BUILDING_MENU };
-    STATE state = STATE.WORLD;
     BuildingLayerController buildingController;
     Renderer buildingMenuPanelRenderer;
 
@@ -24,9 +22,10 @@ public class HudButtonListener : MonoBehaviour {
 
     public void onClickBuildButton() {
         Debug.Log("BuildButton clicked");
-        if (state == STATE.WORLD) {
-            state = STATE.BUILDING_MENU;
+        if (!buildingMenuPanel.activeSelf) {
             buildingMenuPanel.SetActive(true);
+        } else if (buildingMenuPanel.activeSelf) {
+            buildingMenuPanel.SetActive(false);
         }
     }
 }

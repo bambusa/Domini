@@ -81,13 +81,13 @@ public class BuildingLayerController : MonoBehaviour {
                     BuildingTypesModel tempB = b;
                     GameObject button = (GameObject) Instantiate(prefabButton);
 
-                    button.name = b.GetName() + " Button";
+                    button.name = b.GetTypeName() + " Button";
                     button.transform.SetParent(buildingMenuParent.transform);
                     button.GetComponent<RectTransform>().sizeDelta = new Vector2(buttonWidth, buttonHeight);
                     button.GetComponent<Button>().onClick.AddListener(() => CreateBuilding(tempB));
 
                     Text t = button.GetComponentInChildren<Text>();
-                    t.text = b.GetName();
+                    t.text = b.GetTypeName();
                 }
             }
             else {
@@ -110,7 +110,7 @@ public class BuildingLayerController : MonoBehaviour {
     }
 
     public void CreateBuilding(BuildingTypesModel buildingTypesModel) {
-        Debug.Log("Create building " + buildingTypesModel.GetName());
+        Debug.Log("Create building " + buildingTypesModel.GetTypeName());
         BuildingModel newBuilding = new BuildingModel(buildingTypesModel);
         newBuilding.CbRegisterResourcesChanged(OnBuildingResourcesChanged);
         RenderBuilding(newBuilding);
@@ -126,7 +126,7 @@ public class BuildingLayerController : MonoBehaviour {
         GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube); // TODO: Placeholder 
         //cube.SetActive(false);
         cube.transform.parent = this.transform;
-        cube.name = buildingModel.GetName();
+        cube.name = buildingModel.GetTypeName();
         cube.GetComponent<Renderer>().material.color = Color.red;
         cube.transform.localScale = new Vector3(1, 1, 1);
         cube.AddComponent<PlaceBuildingController>().SetReferences(buildingModel, mapLayer);

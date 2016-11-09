@@ -26,8 +26,8 @@ public class BuildingModel {
     //    this.production = production;
     //}
 
-    public string GetName() {
-        return buildingTypesModel.GetName();
+    public string GetTypeName() {
+        return buildingTypesModel.GetTypeName();
     }
 
     public void SetPosition(int posX, int posZ) {
