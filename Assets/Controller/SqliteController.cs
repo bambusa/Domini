@@ -178,7 +178,10 @@ public class SqliteController {
                         costLevel = reader.GetInt32(buildingCostsLevelIndex);
                         float buildingCostsValue = reader.GetFloat(buildingCostsValueIndex);
                         ResourceTypesModel resourceType = resourceTypeIds[buildingCostsResourceId];
-                        buildingCostsLevel.Add(resourceType, buildingCostsValue);
+                        if (!buildingCostsLevel.ContainsKey(resourceType))
+                        {
+                            buildingCostsLevel.Add(resourceType, buildingCostsValue);
+                        }
                     }
                 }
 
@@ -212,7 +215,10 @@ public class SqliteController {
                         produceLevel = reader.GetInt32(buildingProducesLevelIndex);
                         float buildingProducesValue = reader.GetFloat(buildingProducesValueIndex);
                         ResourceTypesModel resourceType = resourceTypeIds[buildingProducesResourceId];
-                        buildingCostsLevel.Add(resourceType, buildingProducesValue);
+                        if (!buildingCostsLevel.ContainsKey(resourceType))
+                        {
+                            buildingCostsLevel.Add(resourceType, buildingProducesValue);
+                        }
                     }
                 }
 
@@ -229,7 +235,10 @@ public class SqliteController {
                         costLevel = reader.GetInt32(buildingStoresLevelIndex);
                         float buildingStoresValue = reader.GetFloat(buildingStoresValueIndex);
                         ResourceTypesModel resourceType = resourceTypeIds[buildingStoresResourceId];
-                        buildingStoresLevel.Add(resourceType, buildingStoresValue);
+                        if (!buildingStoresLevel.ContainsKey(resourceType))
+                        {
+                            buildingStoresLevel.Add(resourceType, buildingStoresValue);
+                        }
                     }
                 }
 
