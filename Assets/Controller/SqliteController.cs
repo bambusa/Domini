@@ -117,7 +117,7 @@ public class SqliteController {
                 " LEFT JOIN resource AS resource_cons ON building_consumes.resource_id = resource_cons.resource_id" +
                 " LEFT JOIN resource AS resource_store ON building_stores.resource_id = resource_store.resource_id" +
                 " WHERE building_translation.language_id = " + defaultLanguageId +
-                " ORDER BY building_calculation_level ASC, building_building_id ASC, building_costs_level ASC, building_produces_level ASC, building_consumes_level ASC, building_stores_level ASC;";
+                " ORDER BY building_building_id ASC, building_calculation_level ASC, building_costs_level ASC, building_produces_level ASC, building_consumes_level ASC, building_stores_level ASC;";
             dbcmd.CommandText = sqlQuery;
             reader = dbcmd.ExecuteReader();
 
@@ -163,12 +163,18 @@ public class SqliteController {
             int storeLevel = -1;
 
             while (reader.Read()) {
-                Debug.Log("Building row: " + reader.GetString(buildingNameIndex) + " (" + reader.GetInt64(buildingIdIndex) + ")");
+                if (buildingId == -1 && !reader.IsDBNull(buildingIdIndex)) buildingId = reader.GetInt32(buildingIdIndex);
+                if (costLevel == -1 && !reader.IsDBNull(buildingCostsLevelIndex)) costLevel = reader.GetInt32(buildingCostsLevelIndex);
+                if (consumeLevel == -1 && !reader.IsDBNull(buildingConsumesLevelIndex)) consumeLevel = reader.GetInt32(buildingConsumesLevelIndex);
+                if (produceLevel == -1 && !reader.IsDBNull(buildingProducesLevelIndex)) produceLevel = reader.GetInt32(buildingProducesLevelIndex);
+                if (storeLevel == -1 && !reader.IsDBNull(buildingStoresLevelIndex)) storeLevel = reader.GetInt32(buildingStoresLevelIndex);
+
+                Debug.Log("Database row: " + reader.GetString(buildingNameIndex) + " (" + reader.GetInt64(buildingIdIndex) + ")");
 
                 if (!reader.IsDBNull(buildingCostsLevelIndex)) {
                     // gather building costs
                     int thisCostLevel = reader.GetInt32(buildingCostsLevelIndex);
-                    if (thisCostLevel > costLevel && costLevel != -1) {
+                    if (thisCostLevel > costLevel) {
                         // save buildingCosts level
                         buildingCosts.Add(costLevel, new Dictionary<ResourceTypesModel, float>(buildingCostsLevel));
                         buildingCostsLevel = new Dictionary<ResourceTypesModel, float>();
@@ -178,17 +184,14 @@ public class SqliteController {
                         costLevel = reader.GetInt32(buildingCostsLevelIndex);
                         float buildingCostsValue = reader.GetFloat(buildingCostsValueIndex);
                         ResourceTypesModel resourceType = resourceTypeIds[buildingCostsResourceId];
-                        if (!buildingCostsLevel.ContainsKey(resourceType))
-                        {
-                            buildingCostsLevel.Add(resourceType, buildingCostsValue);
-                        }
+                        if (buildingCostsLevel.ContainsKey(resourceType)) buildingCostsLevel.Add(resourceType, buildingCostsValue);
                     }
                 }
 
                 if (!reader.IsDBNull(buildingConsumesLevelIndex)) {
                     // gather building consumes
                     int thisConsumeLevel = reader.GetInt32(buildingConsumesLevelIndex);
-                    if (thisConsumeLevel > consumeLevel && consumeLevel != -1) {
+                    if (thisConsumeLevel > consumeLevel) {
                         // save buildingCnsumes level
                         buildingConsumes.Add(consumeLevel, new Dictionary<ResourceTypesModel, float>(buildingConsumesLevel));
                         buildingConsumesLevel = new Dictionary<ResourceTypesModel, float>();
@@ -198,14 +201,14 @@ public class SqliteController {
                         consumeLevel = reader.GetInt32(buildingConsumesLevelIndex);
                         float buildingConsumesValue = reader.GetFloat(buildingConsumesValueIndex);
                         ResourceTypesModel resourceType = resourceTypeIds[buildingConsumesResourceId];
-                        buildingConsumesLevel.Add(resourceType, buildingConsumesValue);
+                        if (buildingConsumesLevel.ContainsKey(resourceType)) buildingConsumesLevel.Add(resourceType, buildingConsumesValue);
                     }
                 }
 
                 if (!reader.IsDBNull(buildingProducesLevelIndex)) {
                     // gather building produces
                     int thisProducesLevel = reader.GetInt32(buildingProducesLevelIndex);
-                    if (thisProducesLevel > produceLevel && produceLevel != -1) {
+                    if (thisProducesLevel > produceLevel) {
                         // save buildingProduces level
                         buildingProduces.Add(produceLevel, new Dictionary<ResourceTypesModel, float>(buildingProducesLevel));
                         buildingProducesLevel = new Dictionary<ResourceTypesModel, float>();
@@ -215,17 +218,14 @@ public class SqliteController {
                         produceLevel = reader.GetInt32(buildingProducesLevelIndex);
                         float buildingProducesValue = reader.GetFloat(buildingProducesValueIndex);
                         ResourceTypesModel resourceType = resourceTypeIds[buildingProducesResourceId];
-                        if (!buildingCostsLevel.ContainsKey(resourceType))
-                        {
-                            buildingCostsLevel.Add(resourceType, buildingProducesValue);
-                        }
+                        if (buildingProducesLevel.ContainsKey(resourceType)) buildingProducesLevel.Add(resourceType, buildingProducesValue);
                     }
                 }
 
                 if (!reader.IsDBNull(buildingStoresLevelIndex)) {
                     // gather building stores
                     int thisStoresLevel = reader.GetInt32(buildingStoresLevelIndex);
-                    if (thisStoresLevel > storeLevel && storeLevel != -1) {
+                    if (thisStoresLevel > storeLevel) {
                         // save buildingStores level
                         buildingStores.Add(storeLevel, new Dictionary<ResourceTypesModel, float>(buildingStoresLevel));
                         buildingStoresLevel = new Dictionary<ResourceTypesModel, float>();
@@ -235,16 +235,13 @@ public class SqliteController {
                         costLevel = reader.GetInt32(buildingStoresLevelIndex);
                         float buildingStoresValue = reader.GetFloat(buildingStoresValueIndex);
                         ResourceTypesModel resourceType = resourceTypeIds[buildingStoresResourceId];
-                        if (!buildingStoresLevel.ContainsKey(resourceType))
-                        {
-                            buildingStoresLevel.Add(resourceType, buildingStoresValue);
-                        }
+                        if (buildingStoresLevel.ContainsKey(resourceType)) buildingStoresLevel.Add(resourceType, buildingStoresValue);
                     }
                 }
 
                 // if new building type save the old data and begin new model
                 long thisBuildingId = reader.GetInt64(buildingIdIndex);
-                if (thisBuildingId > buildingId && buildingId != -1) {
+                if (thisBuildingId > buildingId) {
                     // save previous model
                     Debug.Log("Save BuildingTypesModel: " + buildingName + " (" + buildingId + ")");
                     buildingCosts.Add(costLevel, new Dictionary<ResourceTypesModel, float>(buildingCostsLevel));
@@ -267,7 +264,7 @@ public class SqliteController {
             reader.Close();
 
             if (buildingId != -1) {
-                Debug.Log("Save BuildingTypesModel: " + buildingName + " (" + buildingId + ")");
+                Debug.Log("Save (last) BuildingTypesModel: " + buildingName + " (" + buildingId + ")");
                 if (costLevel != -1) buildingCosts.Add(costLevel, new Dictionary<ResourceTypesModel, float>(buildingCostsLevel));
                 if (consumeLevel != -1) buildingConsumes.Add(consumeLevel, new Dictionary<ResourceTypesModel, float>(buildingConsumesLevel));
                 if (produceLevel != -1) buildingProduces.Add(produceLevel, new Dictionary<ResourceTypesModel, float>(buildingProducesLevel));
