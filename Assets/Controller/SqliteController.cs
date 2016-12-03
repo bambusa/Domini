@@ -69,7 +69,7 @@ public class SqliteController {
             // query for getting all resource types
             Dictionary<long, ResourceTypesModel> resourceTypeIds = new Dictionary<long, ResourceTypesModel>();
             dbcmd = dbConn.CreateCommand();
-            sqlQuery = "SELECT resource.resource_id" +
+            sqlQuery = "SELECT resource.resource_id, resource_translation.name, resource_translation.description" +
                 " FROM resource" +
                 " LEFT JOIN resource_translation ON resource.resource_id = resource_translation.resource_id" +
                 " WHERE resource_translation.language_id = " + defaultLanguageId + ";";
@@ -82,7 +82,8 @@ public class SqliteController {
             while (reader.Read()) {
                 long id = reader.GetInt64(resourceIdIndex);
                 string name = reader.GetString(resourceNameIndex);
-                string description = reader.GetString(resourceDescIndex);
+                string description = null;
+                if (!reader.IsDBNull(resourceDescIndex)) description = reader.GetString(resourceDescIndex);
                 ResourceTypesModel resourceType = new ResourceTypesModel(id, name, description);
                 resourceTypesController.AddResourceType(resourceType);
                 resourceTypeIds.Add(id, resourceType);
