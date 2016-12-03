@@ -68,7 +68,10 @@
         }
         //Debug.Log("Prepared " + tiles.Length + " textures (" + tilesPerRow + " * " + rowNumber + ")");
         return tiles;
-    }    void PrepareMapData() {
+    }    /// <summary>
+    /// Create MapModel from map file
+    /// Each pixel is a terrain type, represented by color
+    /// </summary>    void PrepareMapData() {
         MapModel map = null;
 
         if (mapFile != null) {

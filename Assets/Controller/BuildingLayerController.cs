@@ -6,9 +6,7 @@ using UnityEngine.UI;
 using UnityEngine.Events;
 
 /// <summary>
-/// Hold reference to all BuildingModels
-/// Manage resources of all buildings
-/// Create new buildings here
+/// Create buildings here, render and set callbacks
 /// </summary>
 public class BuildingLayerController : MonoBehaviour {
 
@@ -18,14 +16,12 @@ public class BuildingLayerController : MonoBehaviour {
 
     private UnityAction<string> onClick;
     private Dictionary<string, BuildingTypesModel> buildingTypes;
-    private ArrayList buildingModels;
     private long resourcesLastCalculated;
     private Dictionary<int, float> productionBalance;
     private Dictionary<int, float> resourceStorage;
 
     // Use this for initialization
     void Start () {
-        buildingModels = new ArrayList();
         productionBalance = new Dictionary<int, float>();
         BuildingTypesController buildingTypesController = GameDataController.GetBuildingTypesController();
         if (buildingTypesController == null) {
@@ -103,16 +99,12 @@ public class BuildingLayerController : MonoBehaviour {
     /// Calculate production of all buildings
     /// </summary>
     void updateResourceProduction() {
-        foreach (BuildingModel building in buildingModels) {
-            //productionBalance.Add(0, building.GetProduction());
-        }
-        //Debug.Log("Updated Production to: " + productionBalance[0]);
+        
     }
 
     public void CreateBuilding(BuildingTypesModel buildingTypesModel) {
         Debug.Log("Create building " + buildingTypesModel.GetTypeName());
         BuildingModel newBuilding = new BuildingModel(buildingTypesModel);
-        newBuilding.CbRegisterResourcesChanged(OnBuildingResourcesChanged);
         RenderBuilding(newBuilding);
     }
 
@@ -133,7 +125,6 @@ public class BuildingLayerController : MonoBehaviour {
         cube.AddComponent<BuildingObjectController>().SetReferences(buildingModel);
 
         buildingModel.CbRegisterResourcesChanged(OnBuildingResourcesChanged);
-        buildingModels.Add(buildingModel);
         buildingMenuPanel.SetActive(false);
     }
 

@@ -662,6 +662,10 @@ Prefab:
       propertyPath: m_SizeDelta.x
       value: -100
       objectReference: {fileID: 0}
+    - target: {fileID: 22438918, guid: e0aeac29edcfa554a8984b0eac255ff4, type: 2}
+      propertyPath: m_AnchoredPosition.x
+      value: -1.7
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 11424364, guid: e0aeac29edcfa554a8984b0eac255ff4, type: 2}
   m_ParentPrefab: {fileID: 100100000, guid: e0aeac29edcfa554a8984b0eac255ff4, type: 2}

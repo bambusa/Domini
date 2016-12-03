@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// Controller for building placement
+/// </summary>
 public class PlaceBuildingController : MonoBehaviour {
 
     private BuildingModel buildingModel;

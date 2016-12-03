@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// Controller for interaction with game objects
+/// </summary>
 public class CameraInteractionController : MonoBehaviour {
 
     public GameObject mapLayer;

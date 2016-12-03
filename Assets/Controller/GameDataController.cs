@@ -2,7 +2,7 @@
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// Load all game data from database and prepare the model classes
+/// Load all game data from database and prepare the models
 /// </summary>
 public class GameDataController : MonoBehaviour {
 

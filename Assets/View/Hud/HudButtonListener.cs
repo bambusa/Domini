@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// General button click listener for the menu overlay
+/// </summary>
 public class HudButtonListener : MonoBehaviour {
 
     public GameObject buildingLayer;
@@ -9,6 +12,9 @@ public class HudButtonListener : MonoBehaviour {
     BuildingLayerController buildingController;
     Renderer buildingMenuPanelRenderer;
 
+    /// <summary>
+    /// Check needed references to BuildingLayer for placing buildings
+    /// </summary>
     void onStart() {
         Debug.Log("Hud");
         if (buildingLayer == null) {
@@ -20,6 +26,9 @@ public class HudButtonListener : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Open building menu when build button gets clicked
+    /// </summary>
     public void onClickBuildButton() {
         Debug.Log("BuildButton clicked");
         if (!buildingMenuPanel.activeSelf) {
