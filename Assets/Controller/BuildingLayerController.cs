@@ -14,90 +14,71 @@ public class BuildingLayerController : MonoBehaviour {
     public GameObject prefabButton;
     public GameObject buildingMenuPanel;
 
+    private BuildingTypesController buildingTypesController;
+    private ResourceTypesController resourceTypesController;
     private UnityAction<string> onClick;
-    private Dictionary<long, BuildingTypesModel> buildingTypes;
     private long resourcesLastCalculated;
     private Dictionary<int, float> productionBalance;
     private Dictionary<int, float> resourceStorage;
 
     // Use this for initialization
     void Start () {
-        productionBalance = new Dictionary<int, float>();
         if (GameDataController.buildingTypesController == null) {
             Debug.LogError("BuildingTypesController not found");
         }
+        else if (GameDataController.resourceTypesController == null) {
+           Debug.LogError("ResourceTypesController not found");
+        }
         else {
-            buildingTypes = GameDataController.buildingTypesController.GetBuildingTypesModels();
+            buildingTypesController = GameDataController.buildingTypesController;
+            resourceTypesController = GameDataController.resourceTypesController;
             GenerateBuildingMenu();
         }
-
-        //GameObject gameData = GameObject.Find("Game Data");
-        //if (gameData != null) {
-        //    gameDataController = gameData.GetComponent<GameDataController>();
-        //    if (gameDataController != null) {
-        //        GenerateBuildingMenu(gameDataController.GetBuildingTypesController());
-        //    }
-        //    else {
-        //        Debug.LogError("GameDataController not found");
-        //    }
-        //}
-        //else {
-        //    Debug.LogError("GameData object not found");
-        //}
     }
-
- 
-    // Update is called once per frame
-    void Update () {
-	
-	}
 
     /// <summary>
     /// Generate building menu from database
     /// </summary>
     /// <param name="buildingTypesController"></param>
     private void GenerateBuildingMenu() {
-        Debug.Log("GenerateBuildingMenu " + buildingTypes.Values.Count);
-        GameObject hud = GameObject.Find("Hud");
-        if (hud != null) {
-            Component[] components = hud.GetComponentsInChildren(typeof(GridLayoutGroup), true);
-            GameObject buildingMenuParent = null;
-            foreach(Component c in components) {
-                if (c.gameObject.name.Equals("Building Menu Content")) {
-                    buildingMenuParent = c.gameObject;
+            Debug.Log("GenerateBuildingMenu");
+            GameObject hud = GameObject.Find("Hud");
+            
+
+            if (hud != null) {
+                Component[] components = hud.GetComponentsInChildren(typeof(GridLayoutGroup), true);
+                GameObject buildingMenuParent = null;
+                foreach (Component c in components) {
+                    if (c.gameObject.name.Equals("Building Menu Content")) {
+                        buildingMenuParent = c.gameObject;
+                    }
                 }
-            }
 
-            if (buildingMenuParent != null) {
-                int buttonWidth = 100;
-                int buttonHeight = 100;
+                if (buildingMenuParent != null) {
+                    Dictionary<long, BuildingTypesModel> buildingTypes = GameDataController.buildingTypesController.GetBuildingTypesModels();
+                    int buttonWidth = 100;
+                    int buttonHeight = 100;
 
-                foreach (BuildingTypesModel b in buildingTypes.Values) {
-                    BuildingTypesModel tempB = b;
-                    GameObject button = (GameObject) Instantiate(prefabButton);
+                    foreach (BuildingTypesModel b in buildingTypes.Values) {
+                        BuildingTypesModel tempB = b;
+                        GameObject button = (GameObject)Instantiate(prefabButton);
 
-                    button.name = b.GetName() + " Button";
-                    button.transform.SetParent(buildingMenuParent.transform);
-                    button.GetComponent<RectTransform>().sizeDelta = new Vector2(buttonWidth, buttonHeight);
-                    button.GetComponent<Button>().onClick.AddListener(() => CreateBuilding(tempB));
+                        button.name = b.GetName() + " Button";
+                        button.transform.SetParent(buildingMenuParent.transform);
+                        button.GetComponent<RectTransform>().sizeDelta = new Vector2(buttonWidth, buttonHeight);
+                        button.GetComponent<Button>().onClick.AddListener(() => CreateBuilding(tempB));
 
-                    Text t = button.GetComponentInChildren<Text>();
-                    t.text = b.GetName();
+                        Text t = button.GetComponentInChildren<Text>();
+                        t.text = b.GetName();
+                    }
+                }
+                else {
+                    Debug.LogError("Building Menu Content not found");
                 }
             }
             else {
-                Debug.LogError("Building Menu Content not found");
+                Debug.LogError("Hud not found");
             }
-        }
-        else {
-            Debug.LogError("Hud not found");
-        }
-    }
-
-    /// <summary>
-    /// Calculate production of all buildings
-    /// </summary>
-    void updateResourceProduction() {
         
     }
 
@@ -123,15 +104,7 @@ public class BuildingLayerController : MonoBehaviour {
         cube.AddComponent<PlaceBuildingController>().SetReferences(buildingModel, mapLayer);
         cube.AddComponent<BuildingObjectController>().SetReferences(buildingModel);
 
-        buildingModel.CbRegisterResourcesChanged(OnBuildingResourcesChanged);
+        buildingModel.CbRegisterResourcesChanged(resourceTypesController.CbOnResourcesChanged);
         buildingMenuPanel.SetActive(false);
-    }
-
-    /// <summary>
-    /// Callback for changed resource data of a building
-    /// </summary>
-    /// <param name="buildingModel">The BuildingModel which data changed</param>
-    public void OnBuildingResourcesChanged(BuildingModel buildingModel) {
-        updateResourceProduction();
     }
 }

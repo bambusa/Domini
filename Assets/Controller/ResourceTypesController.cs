@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Collections;
+using UnityEngine;
 
 /// <summary>
-/// Controller for managing the ResourceTypesModels
+/// Controller for managing the resources
 /// </summary>
 public class ResourceTypesController {
 
@@ -32,5 +33,9 @@ public class ResourceTypesController {
     /// </summary>
     public Dictionary<long, ResourceTypesModel> GetResourceTypesModels() {
         return resourceTypes;
+    }
+
+    public void CbOnResourcesChanged(BuildingModel changedBuilding) {
+        Debug.Log("CbOnResourcesChanged (" + changedBuilding.buildingType.GetName() + ")");
     }
 }
