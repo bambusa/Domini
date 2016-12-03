@@ -1,14 +1,16 @@
 ﻿public class ResourceTypesModel {
 
     private long resource_id;
-    private string typeName;
+    private string name;
+    private string description;
 
     /// <summary>
     /// Instantiate the ResourceTypesModel with all fields
     /// </summary>
-    public ResourceTypesModel(long resource_id, string name) {
+    public ResourceTypesModel(long resource_id, string name, string description) {
         this.resource_id = resource_id;
-        this.typeName = name;
+        this.name = name;
+        this.description = description;
     }
 
     /// <summary>
@@ -19,9 +21,16 @@
     }
 
     /// <summary>
-    /// Get the primary key of the "resource" table column
+    /// Get the localized name
     /// </summary>
-    public string GetTypeName() {
-        return typeName;
+    public string GetName() {
+        return name;
+    }
+
+    /// <summary>
+    /// Get the localized description
+    /// </summary>
+    public string GetDescription() {
+        return description;
     }
 }

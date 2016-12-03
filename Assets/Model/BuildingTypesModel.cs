@@ -6,20 +6,23 @@
 public class BuildingTypesModel {
 
     private long building_id;
-    private string typeName;
-    private Dictionary<int, Dictionary<string, double>> costs;
-    private Dictionary<int, Dictionary<string, double>> produces;
-    private Dictionary<int, Dictionary<string, double>> consumes;
+    private string name;
+    private string description;
+    private Dictionary<int, Dictionary<ResourceTypesModel, float>> costs; // <building level, <resource type, value>>
+    private Dictionary<int, Dictionary<ResourceTypesModel, float>> produces; // <building level, <resource type, value>>
+    private Dictionary<int, Dictionary<ResourceTypesModel, float>> consumes; // <building level, <resource type, value>>
+    private Dictionary<int, Dictionary<ResourceTypesModel, float>> stores; // <building level, <resource type, value>>
 
     /// <summary>
     /// Instantiate the BuildingTypesModel with all fields
     /// </summary>
-	public BuildingTypesModel(long building_id, string typeName, Dictionary<int, Dictionary<string, double>> costs, Dictionary<int, Dictionary<string, double>> produces, Dictionary<int, Dictionary<string, double>> consumes) {
+	public BuildingTypesModel(long building_id, string name, string description, Dictionary<int, Dictionary<ResourceTypesModel, float>> costs, Dictionary<int, Dictionary<ResourceTypesModel, float>> produces, Dictionary<int, Dictionary<ResourceTypesModel, float>> consumes, Dictionary<int, Dictionary<ResourceTypesModel, float>> stores) {
         this.building_id = building_id;
-        this.typeName = typeName;
+        this.name = name;
         this.costs = costs;
         this.produces = produces;
         this.consumes = consumes;
+        this.stores = stores;
     }
 
     /// <summary>
@@ -30,9 +33,44 @@ public class BuildingTypesModel {
     }
 
     /// <summary>
-    /// Get the type name of the "building" table column
+    /// Get the building name
     /// </summary>
-    public string GetTypeName() {
-        return typeName;
+    public string GetName() {
+        return name;
+    }
+
+    /// <summary>
+    /// Get the building description
+    /// </summary>
+    public string GetDescription() {
+        return description;
+    }
+
+    /// <summary>
+    /// Get the building costs dictionary
+    /// </summary>
+    public Dictionary<int, Dictionary<ResourceTypesModel, float>> GetCosts() {
+        return costs;
+    }
+
+    /// <summary>
+    /// Get the building consume dictionary
+    /// </summary>
+    public Dictionary<int, Dictionary<ResourceTypesModel, float>> GetConsumes() {
+        return consumes;
+    }
+
+    /// <summary>
+    /// Get the building production dictionary
+    /// </summary>
+    public Dictionary<int, Dictionary<ResourceTypesModel, float>> GetProduces() {
+        return produces;
+    }
+
+    /// <summary>
+    /// Get the building storage dictionary
+    /// </summary>
+    public Dictionary<int, Dictionary<ResourceTypesModel, float>> GetStores() {
+        return stores;
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine; // TODO: Delete
 
 /// <summary>
@@ -10,24 +11,12 @@ public class BuildingModel {
     private Action<BuildingModel> cbPositionChanged;
     private Action<BuildingModel> cbResourcesChanged;
 
-    private BuildingTypesModel buildingTypesModel;
+    public BuildingTypesModel buildingType;
     private int posX;
     private int posZ;
 
     public BuildingModel(BuildingTypesModel buildingTypesModel) {
-        this.buildingTypesModel = buildingTypesModel;
-    }
-
-    //public BuildingModel(string name, string color, int posX, int posZ, float production) {
-    //    this.name = name;
-    //    this.color = color;
-    //    this.posX = posX;
-    //    this.posZ = posZ;
-    //    this.production = production;
-    //}
-
-    public string GetTypeName() {
-        return buildingTypesModel.GetTypeName();
+        this.buildingType = buildingTypesModel;
     }
 
     public void SetPosition(int posX, int posZ) {
@@ -46,16 +35,6 @@ public class BuildingModel {
     public int GetPositionZ() {
         return posZ;
     }
-
-    //public void SetProduction(float production) {
-    //    if (this.production != production) {
-    //        this.production = production;
-    //        cbResourcesChanged(this);
-    //    }
-    //}
-    //public float GetProduction() {
-    //    return production;
-    //}
 
     public void NotifyPlaced() {
         cbResourcesChanged(this);

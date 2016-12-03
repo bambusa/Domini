@@ -15,7 +15,7 @@ public class BuildingLayerController : MonoBehaviour {
     public GameObject buildingMenuPanel;
 
     private UnityAction<string> onClick;
-    private Dictionary<string, BuildingTypesModel> buildingTypes;
+    private Dictionary<long, BuildingTypesModel> buildingTypes;
     private long resourcesLastCalculated;
     private Dictionary<int, float> productionBalance;
     private Dictionary<int, float> resourceStorage;
@@ -23,12 +23,11 @@ public class BuildingLayerController : MonoBehaviour {
     // Use this for initialization
     void Start () {
         productionBalance = new Dictionary<int, float>();
-        BuildingTypesController buildingTypesController = GameDataController.GetBuildingTypesController();
-        if (buildingTypesController == null) {
+        if (GameDataController.buildingTypesController == null) {
             Debug.LogError("BuildingTypesController not found");
         }
         else {
-            buildingTypes = buildingTypesController.GetBuildingTypesModels();
+            buildingTypes = GameDataController.buildingTypesController.GetBuildingTypesModels();
             GenerateBuildingMenu();
         }
 
@@ -77,13 +76,13 @@ public class BuildingLayerController : MonoBehaviour {
                     BuildingTypesModel tempB = b;
                     GameObject button = (GameObject) Instantiate(prefabButton);
 
-                    button.name = b.GetTypeName() + " Button";
+                    button.name = b.GetName() + " Button";
                     button.transform.SetParent(buildingMenuParent.transform);
                     button.GetComponent<RectTransform>().sizeDelta = new Vector2(buttonWidth, buttonHeight);
                     button.GetComponent<Button>().onClick.AddListener(() => CreateBuilding(tempB));
 
                     Text t = button.GetComponentInChildren<Text>();
-                    t.text = b.GetTypeName();
+                    t.text = b.GetName();
                 }
             }
             else {
@@ -103,7 +102,7 @@ public class BuildingLayerController : MonoBehaviour {
     }
 
     public void CreateBuilding(BuildingTypesModel buildingTypesModel) {
-        Debug.Log("Create building " + buildingTypesModel.GetTypeName());
+        Debug.Log("Create building " + buildingTypesModel.GetName());
         BuildingModel newBuilding = new BuildingModel(buildingTypesModel);
         RenderBuilding(newBuilding);
     }
@@ -118,7 +117,7 @@ public class BuildingLayerController : MonoBehaviour {
         GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube); // TODO: Placeholder 
         //cube.SetActive(false);
         cube.transform.parent = this.transform;
-        cube.name = buildingModel.GetTypeName();
+        cube.name = buildingModel.buildingType.GetName();
         cube.GetComponent<Renderer>().material.color = Color.red;
         cube.transform.localScale = new Vector3(1, 1, 1);
         cube.AddComponent<PlaceBuildingController>().SetReferences(buildingModel, mapLayer);

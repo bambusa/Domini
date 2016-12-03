@@ -6,19 +6,17 @@ using UnityEngine.SceneManagement;
 /// </summary>
 public class GameDataController : MonoBehaviour {
 
-    private static BuildingTypesController buildingTypesController;
-    private SqliteController sqliteController;
+    private static SqliteController sqliteController;
+    public static BuildingTypesController buildingTypesController;
+    public static ResourceTypesController resourceTypesController;
 
 	// Use this for initialization
 	void Start () {
         DontDestroyOnLoad(gameObject);
         sqliteController = new SqliteController(Application.dataPath);
         buildingTypesController = sqliteController.GetBuildingTypesController();
+        resourceTypesController = sqliteController.GetResourceTypesController();
         
         SceneManager.LoadScene("MainScene");
-    }
-
-    public static BuildingTypesController GetBuildingTypesController() {
-        return buildingTypesController;
     }
 }

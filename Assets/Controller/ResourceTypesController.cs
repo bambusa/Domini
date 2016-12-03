@@ -7,7 +7,7 @@ using System.Collections;
 public class ResourceTypesController {
 
     /// <summary>
-    /// Dictionary of all ResourceTypesModels with the database "resource_id" as key
+    /// Dictionary of all ResourceTypesModels with the database id
     /// </summary>
     private Dictionary<long, ResourceTypesModel> resourceTypes;
 
@@ -28,20 +28,9 @@ public class ResourceTypesController {
     }
 
     /// <summary>
-    /// Get the whole Dictionary of ResourceTypesModels
+    /// Get all ResourceTypes
     /// </summary>
-    public Dictionary<long, ResourceTypesModel> GetBuildingTypesModels() {
+    public Dictionary<long, ResourceTypesModel> GetResourceTypesModels() {
         return resourceTypes;
-    }
-
-    /// <summary>
-    /// Get a ResourceTypesModel out of the dictionary with the provided key
-    /// </summary>
-    /// <param name="resource_id">The database "resource_id" of the wanted model</param>
-    public ResourceTypesModel GetBuildingTypesModel(long resource_id) {
-        if (resourceTypes.ContainsKey(resource_id)) {
-            return resourceTypes[resource_id];
-        }
-        return null;
     }
 }
