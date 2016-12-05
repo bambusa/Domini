@@ -13,7 +13,7 @@ public class GameDataController : MonoBehaviour {
     public static Dictionary<long, EpochModel> epochs;
     public static Dictionary<long, TechnologyModel> technologies;
     public static List<BuildingModel> playerBuildings;
-    public static ResourceController resourceController;
+    public static Dictionary<ResourceTypesModel, float> playerResources;
 
     // Use this for initialization
     void Start () {
@@ -24,7 +24,7 @@ public class GameDataController : MonoBehaviour {
         epochs = sqliteController.GetEpochs();
         technologies = sqliteController.GetTechnologies();
         playerBuildings = sqliteController.GetPlayerBuildings();
-        resourceController = new ResourceController(resourceTypes, sqliteController.GetPlayerResources());
+        playerResources = sqliteController.GetPlayerResources();
         
         SceneManager.LoadScene("MainScene");
     }

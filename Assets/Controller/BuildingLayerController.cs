@@ -13,10 +13,10 @@ public class BuildingLayerController : MonoBehaviour {
     public GameObject mapLayer;
     public GameObject prefabButton;
     public GameObject buildingMenuPanel;
+    public Action<BuildingModel> OnResourcesChanged = null;
 
     private Dictionary<long, BuildingTypesModel> buildingTypes;
     private Dictionary<long, ResourceTypesModel> resourceTypes;
-    private ResourceController resourceController;
     private UnityAction<string> onClick;
     private long resourcesLastCalculated;
     private Dictionary<int, float> productionBalance;
@@ -30,16 +30,12 @@ public class BuildingLayerController : MonoBehaviour {
         else if (GameDataController.resourceTypes == null) {
            Debug.LogError("ResourceTypes not found");
         }
-        else if (GameDataController.resourceController == null) {
-            Debug.LogError("ResourceController not found");
-        }
         else if (GameDataController.playerBuildings == null) {
             Debug.LogError("PlayerBuildings not found");
         }
         else {
             buildingTypes = GameDataController.buildingTypes;
             resourceTypes = GameDataController.resourceTypes;
-            resourceController = GameDataController.resourceController;
             GenerateBuildingMenu();
             GeneratePlayerBuildings(GameDataController.playerBuildings);
         }
@@ -68,13 +64,12 @@ public class BuildingLayerController : MonoBehaviour {
                     int buttonHeight = 100;
 
                     foreach (BuildingTypesModel b in buildingTypes.Values) {
-                        BuildingTypesModel tempB = b;
                         GameObject button = (GameObject)Instantiate(prefabButton);
 
                         button.name = b.GetName() + " Button";
                         button.transform.SetParent(buildingMenuParent.transform);
                         button.GetComponent<RectTransform>().sizeDelta = new Vector2(buttonWidth, buttonHeight);
-                        button.GetComponent<Button>().onClick.AddListener(() => CreateBuilding(tempB));
+                        button.GetComponent<Button>().onClick.AddListener(() => CreateBuilding(b));
 
                         Text t = button.GetComponentInChildren<Text>();
                         t.text = b.GetName();
@@ -119,7 +114,7 @@ public class BuildingLayerController : MonoBehaviour {
         if (!placeInstantly) cube.AddComponent<PlaceBuildingController>().SetReferences(buildingModel, mapLayer);
         cube.AddComponent<BuildingObjectController>().SetReferences(buildingModel, placeInstantly);
 
-        buildingModel.CbRegisterResourcesChanged(resourceController.CbOnResourcesChanged);
+        buildingModel.CbRegisterResourcesChanged(OnResourcesChanged);
         buildingMenuPanel.SetActive(false);
     }
 }
