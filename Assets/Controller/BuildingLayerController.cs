@@ -14,8 +14,9 @@ public class BuildingLayerController : MonoBehaviour {
     public GameObject prefabButton;
     public GameObject buildingMenuPanel;
 
-    private BuildingTypesController buildingTypesController;
-    private ResourceTypesController resourceTypesController;
+    private Dictionary<long, BuildingTypesModel> buildingTypes;
+    private Dictionary<long, ResourceTypesModel> resourceTypes;
+    private ResourceController resourceController;
     private UnityAction<string> onClick;
     private long resourcesLastCalculated;
     private Dictionary<int, float> productionBalance;
@@ -23,16 +24,24 @@ public class BuildingLayerController : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        if (GameDataController.buildingTypesController == null) {
-            Debug.LogError("BuildingTypesController not found");
+        if (GameDataController.buildingTypes == null) {
+            Debug.LogError("BuildingTypes not found");
         }
-        else if (GameDataController.resourceTypesController == null) {
-           Debug.LogError("ResourceTypesController not found");
+        else if (GameDataController.resourceTypes == null) {
+           Debug.LogError("ResourceTypes not found");
+        }
+        else if (GameDataController.resourceController == null) {
+            Debug.LogError("ResourceController not found");
+        }
+        else if (GameDataController.playerBuildings == null) {
+            Debug.LogError("PlayerBuildings not found");
         }
         else {
-            buildingTypesController = GameDataController.buildingTypesController;
-            resourceTypesController = GameDataController.resourceTypesController;
+            buildingTypes = GameDataController.buildingTypes;
+            resourceTypes = GameDataController.resourceTypes;
+            resourceController = GameDataController.resourceController;
             GenerateBuildingMenu();
+            GeneratePlayerBuildings(GameDataController.playerBuildings);
         }
     }
 
@@ -55,7 +64,6 @@ public class BuildingLayerController : MonoBehaviour {
                 }
 
                 if (buildingMenuParent != null) {
-                    Dictionary<long, BuildingTypesModel> buildingTypes = GameDataController.buildingTypesController.GetBuildingTypesModels();
                     int buttonWidth = 100;
                     int buttonHeight = 100;
 
@@ -82,10 +90,17 @@ public class BuildingLayerController : MonoBehaviour {
         
     }
 
-    public void CreateBuilding(BuildingTypesModel buildingTypesModel) {
-        Debug.Log("Create building " + buildingTypesModel.GetName());
+    private void GeneratePlayerBuildings(List<BuildingModel> buildings) {
+        foreach(BuildingModel building in buildings) {
+            RenderBuilding(building, true);
+        }
+    }
+
+    private void CreateBuilding(BuildingTypesModel buildingTypesModel) {
+        Debug.Log("Trying to create building " + buildingTypesModel.GetName());
+
         BuildingModel newBuilding = new BuildingModel(buildingTypesModel);
-        RenderBuilding(newBuilding);
+        RenderBuilding(newBuilding, false);
     }
 
     /// <summary>
@@ -94,17 +109,17 @@ public class BuildingLayerController : MonoBehaviour {
     /// pass the needed references to those components
     /// </summary>
     /// <param name="buildingModel">BuildingModel of the building</param>
-    void RenderBuilding(BuildingModel buildingModel) {
+    private void RenderBuilding(BuildingModel buildingModel, bool placeInstantly) {
         GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube); // TODO: Placeholder 
         //cube.SetActive(false);
         cube.transform.parent = this.transform;
         cube.name = buildingModel.buildingType.GetName();
         cube.GetComponent<Renderer>().material.color = Color.red;
         cube.transform.localScale = new Vector3(1, 1, 1);
-        cube.AddComponent<PlaceBuildingController>().SetReferences(buildingModel, mapLayer);
-        cube.AddComponent<BuildingObjectController>().SetReferences(buildingModel);
+        if (!placeInstantly) cube.AddComponent<PlaceBuildingController>().SetReferences(buildingModel, mapLayer);
+        cube.AddComponent<BuildingObjectController>().SetReferences(buildingModel, placeInstantly);
 
-        buildingModel.CbRegisterResourcesChanged(resourceTypesController.CbOnResourcesChanged);
+        buildingModel.CbRegisterResourcesChanged(resourceController.CbOnResourcesChanged);
         buildingMenuPanel.SetActive(false);
     }
 }

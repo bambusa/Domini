@@ -26,11 +26,12 @@ public class BuildingObjectController : MonoBehaviour {
     /// <param name="buildingModel">BuildingModel which position changed</param>
     private void OnBuildingPositionChanged(BuildingModel buildingModel) {
         Debug.Log("Building was moved");
-        gameObject.transform.position = new Vector3(buildingModel.GetPositionX() + 0.5f, 0.5f, buildingModel.GetPositionZ() + 0.5f);
+        gameObject.transform.position = new Vector3(this.buildingModel.GetPositionX() + 0.5f, 0.5f, this.buildingModel.GetPositionZ() + 0.5f);
     }
 
-    public void SetReferences(BuildingModel buildingModel) {
+    public void SetReferences(BuildingModel buildingModel, bool placeInstantly) {
         this.buildingModel = buildingModel;
         this.buildingModel.CbRegisterPositionChanged(OnBuildingPositionChanged);
+        if (placeInstantly) OnBuildingPositionChanged(this.buildingModel);
     }
 }

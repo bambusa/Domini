@@ -11,12 +11,19 @@ using UnityEngine; // TODO: Delete
 public class SqliteController {
 
     /// <summary>
-    /// Relative path to the Assets folder of the SQLite file 
+    /// Relative path to the SQLite database file in the assets folder 
     /// </summary>
     public string relativeDatabasePath = "/Plugins/SQLite/Domini0_1.db";
 
-    private BuildingTypesController buildingTypesController;
-    private ResourceTypesController resourceTypesController;
+    private Dictionary<long, BuildingTypesModel> buildingTypes;
+    private Dictionary<long, ResourceTypesModel> resourceTypes;
+    private Dictionary<long, EpochModel> epochs;
+    private Dictionary<long, TechnologyModel> technologies;
+    private PlayerModel player;
+    private List<BuildingModel> playerBuildings;
+    private EpochModel playerEpoch;
+    private Dictionary<ResourceTypesModel, float> playerResources;
+    private List<TechnologyModel> playerTechnologies;
     private IDbConnection dbConn;
 
     /// <summary>
@@ -29,19 +36,46 @@ public class SqliteController {
         LoadGameDataFromDatabase();
     }
 
-    public BuildingTypesController GetBuildingTypesController() {
-        return buildingTypesController;
+    public Dictionary<long, BuildingTypesModel> GetBuildingTypes() {
+        return buildingTypes;
     }
 
-    public ResourceTypesController GetResourceTypesController() {
-        return resourceTypesController;
+    public Dictionary<long, ResourceTypesModel> GetResourceTypes() {
+        return resourceTypes;
+    }
+
+    public Dictionary<long, EpochModel> GetEpochs() {
+        return epochs;
+    }
+
+    public Dictionary<long, TechnologyModel> GetTechnologies() {
+        return technologies;
+    }
+
+    public PlayerModel GetPlayer() {
+        return player;
+    }
+
+    public List<BuildingModel> GetPlayerBuildings() {
+        return playerBuildings;
+    }
+
+    public EpochModel GetPlayerEpoch() {
+        return playerEpoch;
+    }
+
+    public Dictionary<ResourceTypesModel, float> GetPlayerResources() {
+        return playerResources;
+    }
+
+    public List<TechnologyModel> GetPlayerTechnologies() {
+        return playerTechnologies;
     }
 
     /// <summary>
     /// Load all generic game data from the database
     /// </summary>
     private void LoadGameDataFromDatabase() {
-        Debug.Log("LoadGameDataFromDatabase");
 
         // Open database connection
         dbConn.Open();
@@ -51,7 +85,7 @@ public class SqliteController {
 
         // query for getting the default language
         long defaultLanguageId = -1;
-        resourceTypesController = new ResourceTypesController();
+        string defaultLanguageName = null;
         dbcmd = dbConn.CreateCommand();
         sqlQuery = "SELECT * FROM language WHERE is_default = 1 LIMIT 1";
         dbcmd.CommandText = sqlQuery;
@@ -60,14 +94,19 @@ public class SqliteController {
         int languageIdIndex = reader.GetOrdinal("language_id");
         while (reader.Read()) {
             defaultLanguageId = reader.GetInt64(languageIdIndex);
+            defaultLanguageName = reader.GetString(reader.GetOrdinal("name"));
+            Debug.Log("Default language: " + defaultLanguageName);
         }
         reader.Close();
         dbcmd.Dispose();
 
         if (defaultLanguageId > 0) {
 
-            // query for getting all resource types
-            Dictionary<long, ResourceTypesModel> resourceTypeIds = new Dictionary<long, ResourceTypesModel>();
+            ///
+            /// Resource Types
+            /// 
+            Debug.Log("Getting resource types...");
+            resourceTypes = new Dictionary<long, ResourceTypesModel>();
             dbcmd = dbConn.CreateCommand();
             sqlQuery = "SELECT resource.resource_id, resource_translation.name, resource_translation.description" +
                 " FROM resource" +
@@ -84,17 +123,20 @@ public class SqliteController {
                 string name = reader.GetString(resourceNameIndex);
                 string description = null;
                 if (!reader.IsDBNull(resourceDescIndex)) description = reader.GetString(resourceDescIndex);
+                Debug.Log("Save resource type: " + name + " (" + id + ")");
                 ResourceTypesModel resourceType = new ResourceTypesModel(id, name, description);
-                resourceTypesController.AddResourceType(resourceType);
-                resourceTypeIds.Add(id, resourceType);
+                resourceTypes.Add(id, resourceType);
             }
             reader.Close();
             dbcmd.Dispose();
 
 
 
-            // query for getting all building types with resource costs, production, consume and storage
-            buildingTypesController = new BuildingTypesController();
+            ///
+            /// Building Types
+            /// 
+            Debug.Log("Getting building types...");
+            buildingTypes = new Dictionary<long, BuildingTypesModel>();
             dbcmd = dbConn.CreateCommand();
             sqlQuery = "SELECT building.building_id AS building_building_id, building.calculation_level AS building_calculation_level" +
                 ", building_translation.name AS building_translation_name, building_translation.description AS building_translation_description" +
@@ -155,21 +197,21 @@ public class SqliteController {
 
             // current model
             long buildingId = -1;
-            string buildingName = "";
-            string buildingDescription = "";
+            string buildingName = null;
+            string buildingDescription = null;
             int costLevel = -1;
             int consumeLevel = -1;
             int produceLevel = -1;
             int storeLevel = -1;
 
             while (reader.Read()) {
-                if (buildingId == -1 && !reader.IsDBNull(buildingIdIndex)) buildingId = reader.GetInt32(buildingIdIndex);
+                if (buildingId == -1 && !reader.IsDBNull(buildingIdIndex)) buildingId = reader.GetInt64(buildingIdIndex);
                 if (costLevel == -1 && !reader.IsDBNull(buildingCostsLevelIndex)) costLevel = reader.GetInt32(buildingCostsLevelIndex);
                 if (consumeLevel == -1 && !reader.IsDBNull(buildingConsumesLevelIndex)) consumeLevel = reader.GetInt32(buildingConsumesLevelIndex);
                 if (produceLevel == -1 && !reader.IsDBNull(buildingProducesLevelIndex)) produceLevel = reader.GetInt32(buildingProducesLevelIndex);
                 if (storeLevel == -1 && !reader.IsDBNull(buildingStoresLevelIndex)) storeLevel = reader.GetInt32(buildingStoresLevelIndex);
 
-                Debug.Log("Database row: " + reader.GetString(buildingNameIndex) + " (" + reader.GetInt64(buildingIdIndex) + ")");
+                //Debug.Log("Database row: " + reader.GetString(buildingNameIndex) + " (" + reader.GetInt64(buildingIdIndex) + ")");
 
                 if (!reader.IsDBNull(buildingCostsLevelIndex)) {
                     // gather building costs
@@ -180,10 +222,10 @@ public class SqliteController {
                         buildingCostsLevel = new Dictionary<ResourceTypesModel, float>();
                     }
                     long buildingCostsResourceId = reader.GetInt64(buildingCostsResourceIdIndex);
-                    if (resourceTypeIds.ContainsKey(buildingCostsResourceId)) {
+                    if (resourceTypes.ContainsKey(buildingCostsResourceId)) {
                         costLevel = reader.GetInt32(buildingCostsLevelIndex);
                         float buildingCostsValue = reader.GetFloat(buildingCostsValueIndex);
-                        ResourceTypesModel resourceType = resourceTypeIds[buildingCostsResourceId];
+                        ResourceTypesModel resourceType = resourceTypes[buildingCostsResourceId];
                         if (buildingCostsLevel.ContainsKey(resourceType)) buildingCostsLevel.Add(resourceType, buildingCostsValue);
                     }
                 }
@@ -197,10 +239,10 @@ public class SqliteController {
                         buildingConsumesLevel = new Dictionary<ResourceTypesModel, float>();
                     }
                     long buildingConsumesResourceId = reader.GetInt64(buildingConsumesResourceIdIndex);
-                    if (resourceTypeIds.ContainsKey(buildingConsumesResourceId)) {
+                    if (resourceTypes.ContainsKey(buildingConsumesResourceId)) {
                         consumeLevel = reader.GetInt32(buildingConsumesLevelIndex);
                         float buildingConsumesValue = reader.GetFloat(buildingConsumesValueIndex);
-                        ResourceTypesModel resourceType = resourceTypeIds[buildingConsumesResourceId];
+                        ResourceTypesModel resourceType = resourceTypes[buildingConsumesResourceId];
                         if (buildingConsumesLevel.ContainsKey(resourceType)) buildingConsumesLevel.Add(resourceType, buildingConsumesValue);
                     }
                 }
@@ -214,10 +256,10 @@ public class SqliteController {
                         buildingProducesLevel = new Dictionary<ResourceTypesModel, float>();
                     }
                     long buildingProducesResourceId = reader.GetInt64(buildingCostsResourceIdIndex);
-                    if (resourceTypeIds.ContainsKey(buildingProducesResourceId)) {
+                    if (resourceTypes.ContainsKey(buildingProducesResourceId)) {
                         produceLevel = reader.GetInt32(buildingProducesLevelIndex);
                         float buildingProducesValue = reader.GetFloat(buildingProducesValueIndex);
-                        ResourceTypesModel resourceType = resourceTypeIds[buildingProducesResourceId];
+                        ResourceTypesModel resourceType = resourceTypes[buildingProducesResourceId];
                         if (buildingProducesLevel.ContainsKey(resourceType)) buildingProducesLevel.Add(resourceType, buildingProducesValue);
                     }
                 }
@@ -231,10 +273,10 @@ public class SqliteController {
                         buildingStoresLevel = new Dictionary<ResourceTypesModel, float>();
                     }
                     long buildingStoresResourceId = reader.GetInt64(buildingStoresResourceIdIndex);
-                    if (resourceTypeIds.ContainsKey(buildingStoresResourceId)) {
+                    if (resourceTypes.ContainsKey(buildingStoresResourceId)) {
                         costLevel = reader.GetInt32(buildingStoresLevelIndex);
                         float buildingStoresValue = reader.GetFloat(buildingStoresValueIndex);
-                        ResourceTypesModel resourceType = resourceTypeIds[buildingStoresResourceId];
+                        ResourceTypesModel resourceType = resourceTypes[buildingStoresResourceId];
                         if (buildingStoresLevel.ContainsKey(resourceType)) buildingStoresLevel.Add(resourceType, buildingStoresValue);
                     }
                 }
@@ -243,14 +285,15 @@ public class SqliteController {
                 long thisBuildingId = reader.GetInt64(buildingIdIndex);
                 if (thisBuildingId > buildingId) {
                     // save previous model
-                    Debug.Log("Save BuildingTypesModel: " + buildingName + " (" + buildingId + ")");
+                    //Debug.Log("Save building type: " + buildingName + " (" + buildingId + ")");
                     buildingCosts.Add(costLevel, new Dictionary<ResourceTypesModel, float>(buildingCostsLevel));
                     buildingConsumes.Add(consumeLevel, new Dictionary<ResourceTypesModel, float>(buildingConsumesLevel));
                     buildingProduces.Add(produceLevel, new Dictionary<ResourceTypesModel, float>(buildingProducesLevel));
                     buildingStores.Add(storeLevel, new Dictionary<ResourceTypesModel, float>(buildingStoresLevel));
                     BuildingTypesModel b = new BuildingTypesModel(buildingId, buildingName, buildingDescription, new Dictionary<int, Dictionary<ResourceTypesModel, float>>(buildingCosts), new Dictionary<int, Dictionary<ResourceTypesModel, float>>(buildingProduces), new Dictionary<int, Dictionary<ResourceTypesModel, float>>(buildingConsumes), new Dictionary<int, Dictionary<ResourceTypesModel, float>>(buildingStores));
-                    buildingTypesController.AddBuildingType(b);
+                    buildingTypes.Add(buildingId, b);
 
+                    buildingDescription = null;
                     buildingCosts = new Dictionary<int, Dictionary<ResourceTypesModel, float>>();
                     buildingProduces = new Dictionary<int, Dictionary<ResourceTypesModel, float>>();
                     buildingConsumes = new Dictionary<int, Dictionary<ResourceTypesModel, float>>();
@@ -262,16 +305,251 @@ public class SqliteController {
 
             }
             reader.Close();
+            dbcmd.Dispose();
 
             if (buildingId != -1) {
-                Debug.Log("Save (last) BuildingTypesModel: " + buildingName + " (" + buildingId + ")");
+                //Debug.Log("Save (last) building type: " + buildingName + " (" + buildingId + ")");
                 if (costLevel != -1) buildingCosts.Add(costLevel, new Dictionary<ResourceTypesModel, float>(buildingCostsLevel));
                 if (consumeLevel != -1) buildingConsumes.Add(consumeLevel, new Dictionary<ResourceTypesModel, float>(buildingConsumesLevel));
                 if (produceLevel != -1) buildingProduces.Add(produceLevel, new Dictionary<ResourceTypesModel, float>(buildingProducesLevel));
                 if (storeLevel != -1) buildingStores.Add(storeLevel, new Dictionary<ResourceTypesModel, float>(buildingStoresLevel));
                 BuildingTypesModel b = new BuildingTypesModel(buildingId, buildingName, buildingDescription, new Dictionary<int, Dictionary<ResourceTypesModel, float>>(buildingCosts), new Dictionary<int, Dictionary<ResourceTypesModel, float>>(buildingProduces), new Dictionary<int, Dictionary<ResourceTypesModel, float>>(buildingConsumes), new Dictionary<int, Dictionary<ResourceTypesModel, float>>(buildingStores));
-                buildingTypesController.AddBuildingType(b);
+                buildingTypes.Add(buildingId, b);
             }
+
+
+
+            ///
+            /// Epochs
+            /// 
+            Debug.Log("Getting epochs...");
+            epochs = new Dictionary<long, EpochModel>();
+            dbcmd = dbConn.CreateCommand();
+            sqlQuery = "SELECT epoch.epoch_id, epoch_translation.name, epoch_translation.description FROM epoch LEFT JOIN epoch_translation ON epoch.epoch_id = epoch_translation.epoch_id WHERE epoch_translation.language_id = " + defaultLanguageId;
+            dbcmd.CommandText = sqlQuery;
+            reader = dbcmd.ExecuteReader();
+
+            int epochIdIndex = reader.GetOrdinal("epoch_id");
+            int epochNameIndex = reader.GetOrdinal("name");
+            int epochDescriptionIndex = reader.GetOrdinal("description");
+            while(reader.Read()) {
+                long id = reader.GetInt64(epochIdIndex);
+                string name = reader.GetString(epochNameIndex);
+                string description = null;
+                if (!reader.IsDBNull(epochDescriptionIndex)) description = reader.GetString(epochDescriptionIndex);
+                EpochModel epoch = new EpochModel(id, name, description);
+                epochs.Add(id, epoch);
+            }
+            reader.Close();
+            dbcmd.Dispose();
+
+
+
+            ///
+            /// Technologies
+            /// 
+            Debug.Log("Getting technologies...");
+            technologies = new Dictionary<long, TechnologyModel>();
+            dbcmd = dbConn.CreateCommand();
+            sqlQuery = "SELECT technology.technology_id AS technology_technology_id" +
+                ", technology_translation.name AS technology_translation_name, technology_translation.description AS technology_translation_description" +
+                ", technology_costs_resource.resource_id AS technology_costs_resource_id, technology_costs_resource.value AS technology_costs_value" +
+                ", technology_needs_predecessor.technology_id AS predecessor_technology_id" +
+                ", technology_unlocks_building.building_id AS technology_unlocks_building_id" +
+                ", technology_unlocks_epoch.epoch_id AS technology_unlocks_epoch_id" +
+                " FROM technology" +
+                " LEFT JOIN technology_translation ON technology.technology_id = technology_translation.technology_id" +
+                " LEFT JOIN technology_costs_resource ON technology.technology_id = technology_costs_resource.technology_id" +
+                " LEFT JOIN technology_needs_predecessor ON technology.technology_id = technology_needs_predecessor.technology_id" +
+                " LEFT JOIN technology_unlocks_building ON technology.technology_id = technology_unlocks_building.technology_id" +
+                " LEFT JOIN technology_unlocks_epoch ON technology.technology_id = technology_unlocks_epoch.technology_id" +
+                " WHERE technology_translation.language_id = " + defaultLanguageId +
+                " ORDER BY technology_technology_id ASC, technology_costs_resource_id ASC, predecessor_technology_id ASC, technology_unlocks_building_id ASC, technology_unlocks_epoch_id ASC";
+            dbcmd.CommandText = sqlQuery;
+            reader = dbcmd.ExecuteReader();
+
+            int technologyIdIndex = reader.GetOrdinal("technology_technology_id");
+            int technologyNameIndex = reader.GetOrdinal("technology_translation_name");
+            int technologyDescriptionIndex = reader.GetOrdinal("technology_translation_description");
+            int technologyCostResourceIdIndex = reader.GetOrdinal("technology_costs_resource_id");
+            int technologyCostValueIndex = reader.GetOrdinal("technology_costs_value");
+            int technologyPredecessorIdIndex = reader.GetOrdinal("predecessor_technology_id");
+            int technologyUnlocksBuildingIdIndex = reader.GetOrdinal("technology_unlocks_building_id");
+            int technologyUnlocksEpochIdIndex = reader.GetOrdinal("technology_unlocks_epoch_id");
+
+            // current model
+            long technologyId = -1;
+            string technologyName = null;
+            string technologyDescription = null;
+            Dictionary<ResourceTypesModel, float> costs = new Dictionary<ResourceTypesModel, float>();
+            List<TechnologyModel> needsPredecessors = new List<TechnologyModel>();
+            List<BuildingTypesModel> unlocksBuildings = new List<BuildingTypesModel>();
+            EpochModel unlocksEpoch = null;
+
+            while (reader.Read()) {
+                if (technologyId == -1 && !reader.IsDBNull(technologyIdIndex)) technologyId = reader.GetInt64(technologyIdIndex);
+
+                if (!reader.IsDBNull(technologyCostResourceIdIndex)) {
+                    long technologyCostResourceId = reader.GetInt64(technologyCostResourceIdIndex);
+                    ResourceTypesModel technologyCostsResourceType = resourceTypes[technologyCostResourceId];
+                    float technologyCostsValue = reader.GetFloat(technologyCostValueIndex);
+                    if (!costs.ContainsKey(technologyCostsResourceType)) costs.Add(technologyCostsResourceType, technologyCostsValue);
+                }
+
+                if (!reader.IsDBNull(technologyPredecessorIdIndex)) {
+                    long technologyPredecessorId = reader.GetInt64(technologyPredecessorIdIndex);
+                    TechnologyModel needsPredecessor = technologies[technologyPredecessorId];
+                    if (!needsPredecessors.Contains(needsPredecessor)) needsPredecessors.Add(needsPredecessor);
+                }
+
+                if (!reader.IsDBNull(technologyUnlocksBuildingIdIndex)) {
+                    long technologyUnlocksBuildingId = reader.GetInt64(technologyUnlocksBuildingIdIndex);
+                    BuildingTypesModel unlocksBuilding = buildingTypes[technologyUnlocksBuildingId];
+                    if (!unlocksBuildings.Contains(unlocksBuilding)) unlocksBuildings.Add(unlocksBuilding);
+                }
+
+                if (unlocksEpoch == null && !reader.IsDBNull(technologyUnlocksEpochIdIndex)) {
+                    long technologyUnlocksEpochId = reader.GetInt64(technologyUnlocksEpochIdIndex);
+                    unlocksEpoch = epochs[technologyUnlocksEpochIdIndex];
+                }
+
+                // if new technology save the old data and begin new model
+                long thisTechnologyId = reader.GetInt64(technologyIdIndex);
+                if (thisTechnologyId > technologyId) {
+                    // save previous model
+                    Debug.Log("Save technology: " + technologyName + " (" + technologyId + ")");
+                    TechnologyModel technology = new TechnologyModel(technologyId, technologyName, technologyDescription, costs, needsPredecessors, unlocksBuildings, unlocksEpoch);
+                    technologies.Add(technologyId, technology);
+
+                    technologyDescription = null;
+                    costs = new Dictionary<ResourceTypesModel, float>();
+                    needsPredecessors = new List<TechnologyModel>();
+                    unlocksBuildings = new List<BuildingTypesModel>();
+                    unlocksEpoch = null;
+                }
+                technologyId = thisTechnologyId;
+                technologyName = reader.GetString(technologyNameIndex);
+                technologyDescription = reader.GetString(technologyDescriptionIndex);
+            }
+            reader.Close();
+            dbcmd.Dispose();
+
+
+
+            ///
+            /// Player
+            /// 
+            Debug.Log("Getting player...");
+            dbcmd = dbConn.CreateCommand();
+            sqlQuery = "SELECT username, email FROM player LIMIT 1";
+            dbcmd.CommandText = sqlQuery;
+            reader = dbcmd.ExecuteReader();
+
+            int playerNameIndex = reader.GetOrdinal("username");
+            int playerDescriptionIndex = reader.GetOrdinal("email");
+            while (reader.Read()) {
+                string name = reader.GetString(playerNameIndex);
+                string description = null;
+                if (!reader.IsDBNull(playerDescriptionIndex)) description = reader.GetString(playerDescriptionIndex);
+                player = new PlayerModel(name, description);
+            }
+            reader.Close();
+            dbcmd.Dispose();
+
+
+
+            ///
+            /// Player buildings
+            /// 
+            Debug.Log("Getting player buildings...");
+            playerBuildings = new List<BuildingModel>();
+            dbcmd = dbConn.CreateCommand();
+            sqlQuery = "SELECT * FROM player_has_building";
+            dbcmd.CommandText = sqlQuery;
+            reader = dbcmd.ExecuteReader();
+
+            int playerBuildingIdIndex = reader.GetOrdinal("building_id");
+            int playerBuildingLevelIndex = reader.GetOrdinal("level");
+            int playerBuildingPosXIndex = reader.GetOrdinal("pos_x");
+            int playerBuildingPosZIndex = reader.GetOrdinal("pos_z");
+
+            while (reader.Read()) {
+                long playerBuildingId = reader.GetInt64(playerBuildingIdIndex);
+                int playerBuildingLevel = reader.GetInt32(playerBuildingLevelIndex);
+                int playerBuildingPosX = reader.GetInt32(playerBuildingPosXIndex);
+                int playerBuildingPosZ = reader.GetInt32(playerBuildingPosZIndex);
+                BuildingTypesModel playerBuilding = buildingTypes[playerBuildingId];
+                BuildingModel building = new BuildingModel(playerBuilding, playerBuildingLevel, playerBuildingPosX, playerBuildingPosZ);
+                playerBuildings.Add(building);
+            }
+            reader.Close();
+            dbcmd.Dispose();
+
+
+
+            ///
+            /// Player epoch
+            /// 
+            Debug.Log("Getting player epoch...");
+            dbcmd = dbConn.CreateCommand();
+            sqlQuery = "SELECT * FROM player_has_epoch ORDER BY epoch_id DESC LIMIT 1";
+            dbcmd.CommandText = sqlQuery;
+            reader = dbcmd.ExecuteReader();
+
+            int playerEpochIdIndex = reader.GetOrdinal("epoch_id");
+
+            while (reader.Read()) {
+                long playerEpochId = reader.GetInt64(playerEpochIdIndex);
+                playerEpoch = epochs[playerEpochId];
+            }
+            reader.Close();
+            dbcmd.Dispose();
+
+
+
+            ///
+            /// Player resources
+            /// 
+            Debug.Log("Getting player resources...");
+            playerResources = new Dictionary<ResourceTypesModel, float>();
+            dbcmd = dbConn.CreateCommand();
+            sqlQuery = "SELECT * FROM player_has_resource";
+            dbcmd.CommandText = sqlQuery;
+            reader = dbcmd.ExecuteReader();
+
+            int playerResourceIdIndex = reader.GetOrdinal("resource_id");
+            int playerResourceValueIndex = reader.GetOrdinal("value");
+
+            while (reader.Read()) {
+                long playerResourceId = reader.GetInt64(playerResourceIdIndex);
+                float playerResourceValue = reader.GetFloat(playerResourceValueIndex);
+                ResourceTypesModel resourceType = resourceTypes[playerResourceId];
+                playerResources.Add(resourceType, playerResourceValue);
+            }
+            reader.Close();
+            dbcmd.Dispose();
+
+
+
+            ///
+            /// Player technologies
+            /// 
+            Debug.Log("Getting player technologies...");
+            playerTechnologies = new List<TechnologyModel>();
+            dbcmd = dbConn.CreateCommand();
+            sqlQuery = "SELECT * FROM player_has_technology";
+            dbcmd.CommandText = sqlQuery;
+            reader = dbcmd.ExecuteReader();
+
+            int playerTechnologyIdIndex = reader.GetOrdinal("technology_id");
+
+            while (reader.Read()) {
+                long playerTechnologyId = reader.GetInt64(playerTechnologyIdIndex);
+                TechnologyModel playerTechnology = technologies[playerTechnologyId];
+                playerTechnologies.Add(playerTechnology);
+            }
+            reader.Close();
+            dbcmd.Dispose();
         }
 
         // Close database connection

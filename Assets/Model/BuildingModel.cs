@@ -12,11 +12,20 @@ public class BuildingModel {
     private Action<BuildingModel> cbResourcesChanged;
 
     public BuildingTypesModel buildingType;
+    private int level;
     private int posX;
     private int posZ;
 
     public BuildingModel(BuildingTypesModel buildingTypesModel) {
         this.buildingType = buildingTypesModel;
+        level = 1;
+    }
+
+    public BuildingModel(BuildingTypesModel buildingTypesModel, int level, int posX, int posZ) {
+        this.buildingType = buildingTypesModel;
+        this.level = level;
+        this.posX = posX;
+        this.posZ = posZ;
     }
 
     public void SetPosition(int posX, int posZ) {
@@ -34,6 +43,10 @@ public class BuildingModel {
     }
     public int GetPositionZ() {
         return posZ;
+    }
+
+    public int GetLevel() {
+        return level;
     }
 
     public void NotifyPlaced() {
