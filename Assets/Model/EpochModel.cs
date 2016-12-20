@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class EpochModel : MonoBehaviour {
+public class EpochModel {
 
 	private long epoch_id;
     private string name;

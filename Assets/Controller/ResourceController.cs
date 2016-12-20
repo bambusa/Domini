@@ -165,7 +165,7 @@ public class ResourceController : MonoBehaviour {
 
     }
 
-    // Update is called once per defined interval (updateInterval)
+    // Update is called once per defined interval (1 second)
     private void UpdateInterval() {
         foreach (KeyValuePair<ResourceTypesModel, float> pair in currentResourceChange) {
             ResourceTypesModel resource = pair.Key;

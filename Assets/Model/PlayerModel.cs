@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class PlayerModel : MonoBehaviour {
+public class PlayerModel {
 
     private string username;
     private string email;
