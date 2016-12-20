@@ -167,22 +167,32 @@ public class ResourceController : MonoBehaviour {
 
     // Update is called once per defined interval (1 second)
     private void UpdateInterval() {
-        foreach (KeyValuePair<ResourceTypesModel, float> pair in currentResourceChange) {
-            ResourceTypesModel resource = pair.Key;
-            float value = pair.Value;
+        if (currentResourceChange != null)
+        {
+            foreach (KeyValuePair<ResourceTypesModel, float> pair in currentResourceChange)
+            {
+                ResourceTypesModel resource = pair.Key;
+                float value = pair.Value;
 
-            // re-calculate resource storage
-            if (resourceStorage.ContainsKey(resource)) resourceStorage[resource] += value;
-            else resourceStorage.Add(resource, value);
+                // re-calculate resource storage
+                if (resourceStorage.ContainsKey(resource)) resourceStorage[resource] += value;
+                else resourceStorage.Add(resource, value);
 
-            // update resource top bar
-            GameObject item = resourceBarItems[resource];
-            Component[] children = item.GetComponentsInChildren(typeof(Text), true);
-            foreach (Component c in children) {
-                if (c.gameObject.name.Equals("Value")) {
-                    c.GetComponent<Text>().text = resourceStorage[resource].ToString();
+                // update resource top bar
+                GameObject item = resourceBarItems[resource];
+                Component[] children = item.GetComponentsInChildren(typeof(Text), true);
+                foreach (Component c in children)
+                {
+                    if (c.gameObject.name.Equals("Value"))
+                    {
+                        c.GetComponent<Text>().text = resourceStorage[resource].ToString();
+                    }
                 }
             }
+        }
+        else
+        {
+            Debug.LogError("currentResourceChange is null");
         }
     }
 

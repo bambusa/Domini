@@ -1,5 +1,7 @@
 ﻿using System;
-using UnityEngine;public class CameraMoveController : MonoBehaviour {
+using UnityEngine;
+
+public class CameraMoveController : MonoBehaviour {
 
     public float dragSpeed = 5;
     public float keySpeed = 0.5f;
@@ -41,4 +43,4 @@ using UnityEngine;public class CameraMoveController : MonoBehaviour {
             Camera.main.transform.Translate(new Vector3(0, Input.GetAxis("Mouse ScrollWheel") * Camera.main.transform.position.y * scrollSpeed * -1), 0);
         }
     }
-}
+}
