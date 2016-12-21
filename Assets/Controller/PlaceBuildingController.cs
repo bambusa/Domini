@@ -34,13 +34,6 @@ public class PlaceBuildingController : MonoBehaviour {
                     int z = (int)Mathf.Floor(hit.point.z);
                     //Debug.Log("Move to " + x + "/" + z);
                     buildingModel.SetPosition(x, z);
-
-                    //if (!gameObjectActive) {
-                    //    Debug.Log("Set Building active");
-                    //    gameObjectActive = gameObject.activeSelf;
-                    //    gameObject.SetActive(true);
-                    //    gameObjectActive = gameObject.activeSelf;
-                    //}
                 }
             }
         }

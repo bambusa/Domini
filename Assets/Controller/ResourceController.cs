@@ -119,11 +119,11 @@ public class ResourceController : MonoBehaviour {
     public void CbOnResourcesChanged(BuildingModel changedBuilding) {
         Debug.Log("CbOnResourcesChanged (" + changedBuilding.buildingType.GetName() + ")");
         if (productionBuildings.Contains(changedBuilding)) {
-            Debug.Log("Existing building changed");
-            productionBuildings.Add(changedBuilding);
+            Debug.Log("Existing building changed of " + productionBuildings.Count);
         }
         else {
-            Debug.Log("New building added");
+            productionBuildings.Add(changedBuilding);
+            Debug.Log("New building added to " + productionBuildings.Count);
         }
 
         // re-calculate production
@@ -136,20 +136,29 @@ public class ResourceController : MonoBehaviour {
 
         // iterate through built production buildings
         foreach (BuildingModel building in productionBuildings) {
+            Debug.Log("Production building " + building.buildingType.GetName());
             int buildingLevel = building.GetLevel();
 
             // iterate through building consume
-            foreach(KeyValuePair<ResourceTypesModel, float> pair in building.buildingType.GetConsumes()[buildingLevel]) {
-                ResourceTypesModel resource = pair.Key;
-                float value = pair.Value;
-                currentResourceChange[resource] -= value;
+            Debug.Log("Consume Entries: " + building.buildingType.GetConsumes().Count);
+            if (building.buildingType.GetConsumes().ContainsKey(buildingLevel)) {
+                foreach (KeyValuePair<ResourceTypesModel, float> pair in building.buildingType.GetConsumes()[buildingLevel]) {
+                    ResourceTypesModel resource = pair.Key;
+                    float value = pair.Value;
+                    Debug.Log("Consume of " + resource.GetName() + ": " + value);
+                    currentResourceChange[resource] -= value;
+                }
             }
 
             // iterate through building production
-            foreach (KeyValuePair<ResourceTypesModel, float> pair in building.buildingType.GetProduces()[buildingLevel]) {
-                ResourceTypesModel resource = pair.Key;
-                float value = pair.Value;
-                currentResourceChange[resource] += value;
+            Debug.Log("Production Entries: " + building.buildingType.GetProduces().Count);
+            if (building.buildingType.GetProduces().ContainsKey(buildingLevel)) {
+                foreach (KeyValuePair<ResourceTypesModel, float> pair in building.buildingType.GetProduces()[buildingLevel]) {
+                    ResourceTypesModel resource = pair.Key;
+                    float value = pair.Value;
+                    Debug.Log("Production of " + resource.GetName() + ": " + value);
+                    currentResourceChange[resource] += value;
+                }
             }
         }
     }
@@ -173,10 +182,12 @@ public class ResourceController : MonoBehaviour {
             {
                 ResourceTypesModel resource = pair.Key;
                 float value = pair.Value;
+                Debug.Log("update resource storage for " + resource.GetName() + ": " + value);
 
                 // re-calculate resource storage
                 if (resourceStorage.ContainsKey(resource)) resourceStorage[resource] += value;
                 else resourceStorage.Add(resource, value);
+                Debug.Log("New storage for " + resource.GetName() + ": " + resourceStorage[resource]);
 
                 // update resource top bar
                 GameObject item = resourceBarItems[resource];

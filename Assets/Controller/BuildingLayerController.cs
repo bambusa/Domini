@@ -24,6 +24,8 @@ public class BuildingLayerController : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
+        Debug.Log("Start BuildingLayerController");
+        if (OnResourcesChanged == null) Debug.Log("OnResourcesChanged is null");
         if (GameDataController.buildingTypes == null) {
             Debug.LogError("BuildingTypes not found");
         }
@@ -87,13 +89,13 @@ public class BuildingLayerController : MonoBehaviour {
 
     private void GeneratePlayerBuildings(List<BuildingModel> buildings) {
         foreach(BuildingModel building in buildings) {
+            //Debug.Log("GeneratePlayerBuilding " + building.buildingType.GetName());
             RenderBuilding(building, true);
         }
     }
 
     private void CreateBuilding(BuildingTypesModel buildingTypesModel) {
         Debug.Log("Trying to create building " + buildingTypesModel.GetName());
-
         BuildingModel newBuilding = new BuildingModel(buildingTypesModel);
         RenderBuilding(newBuilding, false);
     }
@@ -105,16 +107,21 @@ public class BuildingLayerController : MonoBehaviour {
     /// </summary>
     /// <param name="buildingModel">BuildingModel of the building</param>
     private void RenderBuilding(BuildingModel buildingModel, bool placeInstantly) {
+        buildingModel.CbRegisterResourcesChanged(OnResourcesChanged);
         GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube); // TODO: Placeholder 
         //cube.SetActive(false);
         cube.transform.parent = this.transform;
         cube.name = buildingModel.buildingType.GetName();
         cube.GetComponent<Renderer>().material.color = Color.red;
         cube.transform.localScale = new Vector3(1, 1, 1);
-        if (!placeInstantly) cube.AddComponent<PlaceBuildingController>().SetReferences(buildingModel, mapLayer);
+        if (!placeInstantly) {
+            cube.AddComponent<PlaceBuildingController>().SetReferences(buildingModel, mapLayer);
+        }
+        else {
+            buildingModel.NotifyPlaced();
+        }
         cube.AddComponent<BuildingObjectController>().SetReferences(buildingModel, placeInstantly);
 
-        buildingModel.CbRegisterResourcesChanged(OnResourcesChanged);
         buildingMenuPanel.SetActive(false);
     }
 }
