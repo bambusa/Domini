@@ -4,7 +4,9 @@
 /// Controller for an individual GameData building object,
 /// manage interaction and rendering
 /// </summary>
-[RequireComponent(typeof(MeshFilter))][RequireComponent(typeof(MeshRenderer))][RequireComponent(typeof(MeshCollider))]
+[RequireComponent(typeof(MeshFilter))]
+[RequireComponent(typeof(MeshRenderer))]
+[RequireComponent(typeof(MeshCollider))]
 public class BuildingObjectController : MonoBehaviour {
 
     private BuildingModel buildingModel;
@@ -33,5 +35,9 @@ public class BuildingObjectController : MonoBehaviour {
         this.buildingModel = buildingModel;
         this.buildingModel.CbRegisterPositionChanged(OnBuildingPositionChanged);
         if (placeInstantly) OnBuildingPositionChanged(this.buildingModel);
+    }
+
+    public BuildingModel GetBuildingModel() {
+        return buildingModel;
     }
 }

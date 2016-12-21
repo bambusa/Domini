@@ -50,6 +50,7 @@ public class BuildingModel {
     }
 
     public void NotifyPlaced() {
+        Debug.Log("NotifyPlaced()");
         cbResourcesChanged(this);
     }
 

@@ -1,7 +1,5 @@
-﻿using System.Collections;
-using Mono.Data.Sqlite;
+﻿using Mono.Data.Sqlite;
 using System.Data;
-using System;
 using System.Collections.Generic;
 using UnityEngine; // TODO: Delete
 
@@ -216,68 +214,68 @@ public class SqliteController {
                 if (!reader.IsDBNull(buildingCostsLevelIndex)) {
                     // gather building costs
                     int thisCostLevel = reader.GetInt32(buildingCostsLevelIndex);
-                    if (thisCostLevel > costLevel) {
+                    if (!buildingCosts.ContainsKey(thisCostLevel)) {
                         // save buildingCosts level
-                        buildingCosts.Add(costLevel, new Dictionary<ResourceTypesModel, float>(buildingCostsLevel));
-                        buildingCostsLevel = new Dictionary<ResourceTypesModel, float>();
+                        buildingCosts.Add(thisCostLevel, new Dictionary<ResourceTypesModel, float>());
                     }
                     long buildingCostsResourceId = reader.GetInt64(buildingCostsResourceIdIndex);
                     if (resourceTypes.ContainsKey(buildingCostsResourceId)) {
-                        costLevel = reader.GetInt32(buildingCostsLevelIndex);
                         float buildingCostsValue = reader.GetFloat(buildingCostsValueIndex);
                         ResourceTypesModel resourceType = resourceTypes[buildingCostsResourceId];
-                        if (buildingCostsLevel.ContainsKey(resourceType)) buildingCostsLevel.Add(resourceType, buildingCostsValue);
+                        if (!buildingCosts[thisCostLevel].ContainsKey(resourceType)) {
+                            buildingCosts[thisCostLevel].Add(resourceType, buildingCostsValue);
+                        }
                     }
                 }
 
                 if (!reader.IsDBNull(buildingConsumesLevelIndex)) {
                     // gather building consumes
                     int thisConsumeLevel = reader.GetInt32(buildingConsumesLevelIndex);
-                    if (thisConsumeLevel > consumeLevel) {
-                        // save buildingCnsumes level
-                        buildingConsumes.Add(consumeLevel, new Dictionary<ResourceTypesModel, float>(buildingConsumesLevel));
-                        buildingConsumesLevel = new Dictionary<ResourceTypesModel, float>();
+                    if (!buildingConsumes.ContainsKey(thisConsumeLevel)) {
+                        // save buildingConsumes level
+                        buildingConsumes.Add(thisConsumeLevel, new Dictionary<ResourceTypesModel, float>());
                     }
                     long buildingConsumesResourceId = reader.GetInt64(buildingConsumesResourceIdIndex);
                     if (resourceTypes.ContainsKey(buildingConsumesResourceId)) {
-                        consumeLevel = reader.GetInt32(buildingConsumesLevelIndex);
                         float buildingConsumesValue = reader.GetFloat(buildingConsumesValueIndex);
                         ResourceTypesModel resourceType = resourceTypes[buildingConsumesResourceId];
-                        if (buildingConsumesLevel.ContainsKey(resourceType)) buildingConsumesLevel.Add(resourceType, buildingConsumesValue);
+                        if (!buildingConsumes[thisConsumeLevel].ContainsKey(resourceType)) {
+                            buildingConsumes[thisConsumeLevel].Add(resourceType, buildingConsumesValue);
+                        }
                     }
                 }
 
                 if (!reader.IsDBNull(buildingProducesLevelIndex)) {
                     // gather building produces
                     int thisProducesLevel = reader.GetInt32(buildingProducesLevelIndex);
-                    if (thisProducesLevel > produceLevel) {
+                    if (!buildingProduces.ContainsKey(thisProducesLevel)) {
                         // save buildingProduces level
-                        buildingProduces.Add(produceLevel, new Dictionary<ResourceTypesModel, float>(buildingProducesLevel));
-                        buildingProducesLevel = new Dictionary<ResourceTypesModel, float>();
+                        buildingProduces.Add(thisProducesLevel, new Dictionary<ResourceTypesModel, float>());
                     }
-                    long buildingProducesResourceId = reader.GetInt64(buildingCostsResourceIdIndex);
+                    long buildingProducesResourceId = reader.GetInt64(buildingProducesResourceIdIndex);
                     if (resourceTypes.ContainsKey(buildingProducesResourceId)) {
-                        produceLevel = reader.GetInt32(buildingProducesLevelIndex);
                         float buildingProducesValue = reader.GetFloat(buildingProducesValueIndex);
                         ResourceTypesModel resourceType = resourceTypes[buildingProducesResourceId];
-                        if (buildingProducesLevel.ContainsKey(resourceType)) buildingProducesLevel.Add(resourceType, buildingProducesValue);
+                        if (!buildingProduces[thisProducesLevel].ContainsKey(resourceType)) {
+                            buildingProduces[thisProducesLevel].Add(resourceType, buildingProducesValue);
+                        }
                     }
                 }
 
                 if (!reader.IsDBNull(buildingStoresLevelIndex)) {
                     // gather building stores
                     int thisStoresLevel = reader.GetInt32(buildingStoresLevelIndex);
-                    if (thisStoresLevel > storeLevel) {
+                    if (!buildingStores.ContainsKey(thisStoresLevel)) {
                         // save buildingStores level
-                        buildingStores.Add(storeLevel, new Dictionary<ResourceTypesModel, float>(buildingStoresLevel));
-                        buildingStoresLevel = new Dictionary<ResourceTypesModel, float>();
+                        buildingStores.Add(thisStoresLevel, new Dictionary<ResourceTypesModel, float>());
                     }
                     long buildingStoresResourceId = reader.GetInt64(buildingStoresResourceIdIndex);
                     if (resourceTypes.ContainsKey(buildingStoresResourceId)) {
-                        costLevel = reader.GetInt32(buildingStoresLevelIndex);
                         float buildingStoresValue = reader.GetFloat(buildingStoresValueIndex);
                         ResourceTypesModel resourceType = resourceTypes[buildingStoresResourceId];
-                        if (buildingStoresLevel.ContainsKey(resourceType)) buildingStoresLevel.Add(resourceType, buildingStoresValue);
+                        if (!buildingStores[thisStoresLevel].ContainsKey(resourceType)) {
+                            buildingStores[thisStoresLevel].Add(resourceType, buildingStoresValue);
+                        }
                     }
                 }
 
@@ -286,10 +284,10 @@ public class SqliteController {
                 if (thisBuildingId > buildingId) {
                     // save previous model
                     //Debug.Log("Save building type: " + buildingName + " (" + buildingId + ")");
-                    buildingCosts.Add(costLevel, new Dictionary<ResourceTypesModel, float>(buildingCostsLevel));
-                    buildingConsumes.Add(consumeLevel, new Dictionary<ResourceTypesModel, float>(buildingConsumesLevel));
-                    buildingProduces.Add(produceLevel, new Dictionary<ResourceTypesModel, float>(buildingProducesLevel));
-                    buildingStores.Add(storeLevel, new Dictionary<ResourceTypesModel, float>(buildingStoresLevel));
+                    //buildingCosts.Add(costLevel, new Dictionary<ResourceTypesModel, float>(buildingCostsLevel));
+                    //buildingConsumes.Add(consumeLevel, new Dictionary<ResourceTypesModel, float>(buildingConsumesLevel));
+                    //buildingProduces.Add(produceLevel, new Dictionary<ResourceTypesModel, float>(buildingProducesLevel));
+                    //buildingStores.Add(storeLevel, new Dictionary<ResourceTypesModel, float>(buildingStoresLevel));
                     BuildingTypesModel b = new BuildingTypesModel(buildingId, buildingName, buildingDescription, new Dictionary<int, Dictionary<ResourceTypesModel, float>>(buildingCosts), new Dictionary<int, Dictionary<ResourceTypesModel, float>>(buildingProduces), new Dictionary<int, Dictionary<ResourceTypesModel, float>>(buildingConsumes), new Dictionary<int, Dictionary<ResourceTypesModel, float>>(buildingStores));
                     buildingTypes.Add(buildingId, b);
 
@@ -309,10 +307,10 @@ public class SqliteController {
 
             if (buildingId != -1) {
                 //Debug.Log("Save (last) building type: " + buildingName + " (" + buildingId + ")");
-                if (costLevel != -1) buildingCosts.Add(costLevel, new Dictionary<ResourceTypesModel, float>(buildingCostsLevel));
-                if (consumeLevel != -1) buildingConsumes.Add(consumeLevel, new Dictionary<ResourceTypesModel, float>(buildingConsumesLevel));
-                if (produceLevel != -1) buildingProduces.Add(produceLevel, new Dictionary<ResourceTypesModel, float>(buildingProducesLevel));
-                if (storeLevel != -1) buildingStores.Add(storeLevel, new Dictionary<ResourceTypesModel, float>(buildingStoresLevel));
+                //if (costLevel != -1) buildingCosts.Add(costLevel, new Dictionary<ResourceTypesModel, float>(buildingCostsLevel));
+                //if (consumeLevel != -1) buildingConsumes.Add(consumeLevel, new Dictionary<ResourceTypesModel, float>(buildingConsumesLevel));
+                //if (produceLevel != -1) buildingProduces.Add(produceLevel, new Dictionary<ResourceTypesModel, float>(buildingProducesLevel));
+                //if (storeLevel != -1) buildingStores.Add(storeLevel, new Dictionary<ResourceTypesModel, float>(buildingStoresLevel));
                 BuildingTypesModel b = new BuildingTypesModel(buildingId, buildingName, buildingDescription, new Dictionary<int, Dictionary<ResourceTypesModel, float>>(buildingCosts), new Dictionary<int, Dictionary<ResourceTypesModel, float>>(buildingProduces), new Dictionary<int, Dictionary<ResourceTypesModel, float>>(buildingConsumes), new Dictionary<int, Dictionary<ResourceTypesModel, float>>(buildingStores));
                 buildingTypes.Add(buildingId, b);
             }
