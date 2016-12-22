@@ -35,6 +35,10 @@ public class ResourceController : MonoBehaviour {
     /// </summary>
     private Dictionary<ResourceTypesModel, float> currentResourceChange;
     /// <summary>
+    /// Dictionary of current storage change of each resource type
+    /// </summary>
+    private Dictionary<ResourceTypesModel, float> resourceCapacity;
+    /// <summary>
     /// Dictionary of UI Panels in the top bar for displaying the resource storage
     /// </summary>
     private Dictionary<ResourceTypesModel, GameObject> resourceBarItems;
@@ -53,6 +57,11 @@ public class ResourceController : MonoBehaviour {
             currentResourceChange = new Dictionary<ResourceTypesModel, float>();
             foreach (ResourceTypesModel resource in resourceTypes.Values) {
                 currentResourceChange.Add(resource, 0);
+            }
+            resourceCapacity = new Dictionary<ResourceTypesModel, float>();
+            foreach (ResourceTypesModel resource in resourceTypes.Values)
+            {
+                resourceCapacity.Add(resource, 0);
             }
             productionBuildings = new List<BuildingModel>();
             GenerateResourceBar();
@@ -160,6 +169,19 @@ public class ResourceController : MonoBehaviour {
                     currentResourceChange[resource] += value;
                 }
             }
+
+            // iterate through building capacity
+            Debug.Log("Stores Entries: " + building.buildingType.GetStores().Count);
+            if (building.buildingType.GetStores().ContainsKey(buildingLevel))
+            {
+                foreach (KeyValuePair<ResourceTypesModel, float> pair in building.buildingType.GetStores()[buildingLevel])
+                {
+                    ResourceTypesModel resource = pair.Key;
+                    float value = pair.Value;
+                    Debug.Log("Capacity of " + resource.GetName() + ": " + value);
+                    resourceCapacity[resource] += value;
+                }
+            }
         }
     }
 
@@ -185,7 +207,12 @@ public class ResourceController : MonoBehaviour {
                 Debug.Log("update resource storage for " + resource.GetName() + ": " + value);
 
                 // re-calculate resource storage
-                if (resourceStorage.ContainsKey(resource)) resourceStorage[resource] += value;
+                if (resourceStorage.ContainsKey(resource))
+                {
+                    if (resourceStorage[resource] + value < 0) resourceStorage[resource] = 0;
+                    else if (resourceStorage[resource] + value > resourceCapacity[resource]) resourceStorage[resource] = resourceCapacity[resource];
+                    else resourceStorage[resource] += value;
+                }
                 else resourceStorage.Add(resource, value);
                 Debug.Log("New storage for " + resource.GetName() + ": " + resourceStorage[resource]);
 
