@@ -1218,6 +1218,11 @@ Prefab:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 11406812, guid: be9d807a2f3c8554ca812a4a4bd74b13, type: 2}
+      propertyPath: g
+      value: 
+      objectReference: {fileID: 1478592954938826, guid: e48f5978c7dce1e4a8d4110c605296ac,
+        type: 2}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: be9d807a2f3c8554ca812a4a4bd74b13, type: 2}
   m_IsPrefabParent: 0
@@ -1598,6 +1603,7 @@ MonoBehaviour:
   mapLayer: {fileID: 1730108964}
   prefabButton: {fileID: 186848, guid: ea3cc99b5776d3a4b9be12980e92f868, type: 2}
   buildingMenuPanel: {fileID: 518244152}
+  g: {fileID: 1478592954938826, guid: e48f5978c7dce1e4a8d4110c605296ac, type: 2}
 --- !u!1 &2042677162
 GameObject:
   m_ObjectHideFlags: 0

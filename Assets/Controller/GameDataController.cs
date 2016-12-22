@@ -19,13 +19,17 @@ public class GameDataController : MonoBehaviour {
     void Start () {
         DontDestroyOnLoad(gameObject);
         sqliteController = new SqliteController(Application.dataPath);
-        buildingTypes = sqliteController.GetBuildingTypes();
-        resourceTypes = sqliteController.GetResourceTypes();
-        epochs = sqliteController.GetEpochs();
-        technologies = sqliteController.GetTechnologies();
-        playerBuildings = sqliteController.GetPlayerBuildings();
-        playerResources = sqliteController.GetPlayerResources();
-        
-        SceneManager.LoadScene("MainScene");
+        if (sqliteController.LoadGameData()) {
+            buildingTypes = sqliteController.GetBuildingTypes();
+            resourceTypes = sqliteController.GetResourceTypes();
+            epochs = sqliteController.GetEpochs();
+            technologies = sqliteController.GetTechnologies();
+            playerBuildings = sqliteController.GetPlayerBuildings();
+            playerResources = sqliteController.GetPlayerResources();
+            SceneManager.LoadScene("MainScene");
+        }
+        else {
+            Debug.LogError("Error while loading game data");
+        }
     }
 }

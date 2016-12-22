@@ -14,6 +14,7 @@ public class BuildingLayerController : MonoBehaviour {
     public GameObject prefabButton;
     public GameObject buildingMenuPanel;
     public Action<BuildingModel> OnResourcesChanged = null;
+    public GameObject g;
 
     private Dictionary<long, BuildingTypesModel> buildingTypes;
     private Dictionary<long, ResourceTypesModel> resourceTypes;
@@ -108,12 +109,12 @@ public class BuildingLayerController : MonoBehaviour {
     /// <param name="buildingModel">BuildingModel of the building</param>
     private void RenderBuilding(BuildingModel buildingModel, bool placeInstantly) {
         buildingModel.CbRegisterResourcesChanged(OnResourcesChanged);
-        GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube); // TODO: Placeholder 
+        GameObject cube = Instantiate(g); // TODO: Placeholder 
         //cube.SetActive(false);
         cube.transform.parent = this.transform;
         cube.name = buildingModel.buildingType.GetName();
         cube.GetComponent<Renderer>().material.color = Color.red;
-        cube.transform.localScale = new Vector3(1, 1, 1);
+        cube.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
         if (!placeInstantly) {
             cube.AddComponent<PlaceBuildingController>().SetReferences(buildingModel, mapLayer);
         }

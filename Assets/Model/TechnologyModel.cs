@@ -9,10 +9,10 @@ public class TechnologyModel : MonoBehaviour {
     private string description;
     private Dictionary<ResourceTypesModel, float> costs;
     private List<TechnologyModel> needsPredecessor;
-    private List<BuildingTypesModel> unlocksBuildings;
+    private Dictionary<BuildingTypesModel, int> unlocksBuildings;
     private EpochModel unlocksEpoch;
 
-    public TechnologyModel(long technology_id, string name, string description, Dictionary<ResourceTypesModel, float> costs, List<TechnologyModel> needsPredecessor, List<BuildingTypesModel> unlocksBuildings, EpochModel unlocksEpoch) {
+    public TechnologyModel(long technology_id, string name, string description, Dictionary<ResourceTypesModel, float> costs, List<TechnologyModel> needsPredecessor, Dictionary<BuildingTypesModel, int> unlocksBuildings, EpochModel unlocksEpoch) {
         this.technology_id = technology_id;
         this.name = name;
         this.description = description;
@@ -42,7 +42,7 @@ public class TechnologyModel : MonoBehaviour {
         return needsPredecessor;
     }
 
-    private List<BuildingTypesModel> GetUnlockBuildings() {
+    private Dictionary<BuildingTypesModel, int> GetUnlockBuildings() {
         return unlocksBuildings;
     }
 
