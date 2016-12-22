@@ -135,13 +135,20 @@ public class ResourceController : MonoBehaviour {
             Debug.Log("New building added to " + productionBuildings.Count);
         }
 
-        // re-calculate production
+        // re-calculate production/capacity
         currentResourceChange = new Dictionary<ResourceTypesModel, float>();
         foreach (ResourceTypesModel resource in resourceTypes.Values) {
             currentResourceChange[resource] = 0;
         }
 
+        resourceCapacity = new Dictionary<ResourceTypesModel, float>();
+        foreach (ResourceTypesModel resource in resourceTypes.Values)
+        {
+            resourceCapacity[resource] = 0;
+        }
+
         // TODO: real calculation
+        // Iterierung sollte über alle Gebäude stattfinden, oder wenigstens alle mit Lagerkapazitäten
 
         // iterate through built production buildings
         foreach (BuildingModel building in productionBuildings) {
@@ -209,9 +216,20 @@ public class ResourceController : MonoBehaviour {
                 // re-calculate resource storage
                 if (resourceStorage.ContainsKey(resource))
                 {
-                    if (resourceStorage[resource] + value < 0) resourceStorage[resource] = 0;
-                    else if (resourceStorage[resource] + value > resourceCapacity[resource]) resourceStorage[resource] = resourceCapacity[resource];
-                    else resourceStorage[resource] += value;
+                    // Aufruf von CbOnResourcesChanged, wenn ein if-Fall eintritt, um die neuen Produktionswerte auszurechnen (Veränderungen durch Consumption/Production)
+                    // --> kein BuildingModel zum Übergeben
+                    if (resourceStorage[resource] + value < 0)
+                    {
+                        resourceStorage[resource] = 0;
+                    }
+                    else if (resourceStorage[resource] + value > resourceCapacity[resource])
+                    {
+                        resourceStorage[resource] = resourceCapacity[resource];
+                    }
+                    else
+                    {
+                        resourceStorage[resource] += value;
+                    }
                 }
                 else resourceStorage.Add(resource, value);
                 Debug.Log("New storage for " + resource.GetName() + ": " + resourceStorage[resource]);
