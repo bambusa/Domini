@@ -86,7 +86,7 @@ public class SqliteController {
         }
 
         playerBuildings = LoadPlayerBuildings();
-        if (playerBuildings == null || playerBuildings.Count == 0) {
+        if (playerBuildings == null) {
             Debug.LogError("Error while loading player buildings");
             dbConn.Close();
             return false;
@@ -100,14 +100,14 @@ public class SqliteController {
         }
 
         playerResources = LoadPlayerResources();
-        if (playerResources == null || playerResources.Count == 0) {
+        if (playerResources == null) {
             Debug.LogError("Error while loading player resources");
             dbConn.Close();
             return false;
         }
 
         playerTechnologies = LoadPlayerTechnologies();
-        if (playerTechnologies == null || playerTechnologies.Count == 0) {
+        if (playerTechnologies == null) {
             Debug.LogError("Error while loading player technologies");
             dbConn.Close();
             return false;
@@ -303,7 +303,7 @@ public class SqliteController {
     /// <param name="languageId">language database id</param>
     /// <returns>Dictionary of all technologies with database id as key</returns>
     private Dictionary<long, TechnologyModel> LoadTechnologies(long languageId) {
-        Debug.Log("LoadTechnologies()");
+        Debug.Log("LoadTechnologies(" + languageId + ")");
         Dictionary<long, TechnologyModel> technologies = new Dictionary<long, TechnologyModel>();
         IDbCommand dbcmd = dbConn.CreateCommand();
         string sqlQuery = "SELECT * FROM technology" +
@@ -324,9 +324,10 @@ public class SqliteController {
             string name = reader.GetString(technologyNameIndex);
             string description = null;
             if (!reader.IsDBNull(technologyDescriptionIndex)) description = reader.GetString(technologyDescriptionIndex);
+            Debug.Log("Found technology " + name + " (" + id + ")");
 
             Dictionary<ResourceTypesModel, float> technologyCosts = LoadTechnologyResources(id);
-            List<TechnologyModel> predecessors = LoadTechnologyPredecessors(id);
+            List<TechnologyModel> predecessors = LoadTechnologyPredecessors(technologies, id);
             Dictionary<BuildingTypesModel, int> unlocksBuildings = LoadBuildingUnlocks(id);
             EpochModel unlocksEpoch = LoadEpochUnlock(id);
 
@@ -379,7 +380,7 @@ public class SqliteController {
     /// </summary>
     /// <param name="technologyId">technology database id</param>
     /// <returns>List of predecessor technologies</returns>
-    private List<TechnologyModel> LoadTechnologyPredecessors(long technologyId) {
+    private List<TechnologyModel> LoadTechnologyPredecessors(Dictionary<long, TechnologyModel> technologies, long technologyId) {
         Debug.Log("LoadTechnologyPredecessors(" + technologyId + ")");
         List<TechnologyModel> predecessors = new List<TechnologyModel>();
         IDbCommand dbcmd = dbConn.CreateCommand();
